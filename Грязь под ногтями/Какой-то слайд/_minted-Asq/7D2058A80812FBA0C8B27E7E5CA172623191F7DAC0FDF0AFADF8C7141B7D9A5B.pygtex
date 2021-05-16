@@ -1,0 +1,5 @@
+\begin{Verbatim}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8}]
+\PYG{k}{SELECT} \PYG{k}{COUNT}\PYG{p}{(}\PYG{o}{*}\PYG{p}{)}
+\PYG{k}{FROM} \PYG{n}{hr}\PYG{p}{.}\PYG{n}{employees}
+\PYG{k}{WHERE} \PYG{n}{manager\PYGZus{}id} \PYG{k}{IS} \PYG{k}{NULL}
+\end{Verbatim}

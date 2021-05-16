@@ -1,0 +1,13 @@
+%!TeX root = ../Asq.tex
+\begin{frame}[fragile]{Синонимы объектов. Пример запроса}%
+  Для работы транслятора нужно задать синонимы названий столбцов и таблиц на русском языке.
+
+  Сгенерированный код для запроса «\textit{Сколько $ \underbrace{\text{сотрудников}}_{\text{employees}} $ без $ \underbrace{\text{менеджера}}_{\text{manager\_id}} $?}»:
+
+  \begin{minted}[tabsize=2, mathescape, fontsize=\footnotesize]{sql}
+SELECT COUNT(*)
+FROM hr.employees
+WHERE manager_id IS NULL
+  \end{minted}
+
+\end{frame}

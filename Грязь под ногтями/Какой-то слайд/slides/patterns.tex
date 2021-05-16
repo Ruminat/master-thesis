@@ -1,0 +1,25 @@
+%!TeX root = ../Asq.tex
+\begin{frame}[fragile]{Примеры шаблонов}%
+  \begin{itemize}%
+    \item \texttt{selectExpr: listOfColumns | table} "--- шаблон секции \texttt{SELECT},
+    \item \texttt{listOfColumns: columnExpr (connector columnExpr)* table?} "--- список столбцов,
+    \item \texttt{columnExpr: operator* column} "--- столбцовое выражение,
+    \item \texttt{operator} "--- оператор/функция,
+    \item \texttt{connector: «,» | «и»} "--- запятая или «и».
+  \end{itemize}
+  \[
+    \underbrace{
+      \underbrace{
+        \underbrace{
+          \underbrace{\text{ Имя }}_{\text{\texttt{column}}}
+        }_{\text{\texttt{columnExpr}}}
+        \underbrace{\text{ и }}_{\text{\texttt{connector}}}
+        \underbrace{
+          \underbrace{\text{ средняя }}_{\text{\texttt{operator}}}
+          \underbrace{\text{ зарплата }}_{\text{\texttt{column}}}
+        }_{\text{\texttt{columnExpr}}}
+      }_{\text{\texttt{listOfColumns}}}
+      \underbrace{\text{ сотрудников }}_{\text{\texttt{table}}}
+    }_{\text{\texttt{selectExpr}}}
+  \]
+\end{frame}

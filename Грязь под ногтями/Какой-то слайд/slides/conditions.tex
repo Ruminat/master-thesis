@@ -1,0 +1,17 @@
+%!TeX root = ../Asq.tex
+\begin{frame}[fragile]{\texttt{WHERE} и \texttt{HAVING}. Группировка}%
+  В SQL есть 2 вида условий: \texttt{WHERE} и \texttt{HAVING}.
+  Транслятор автоматически определяет тип условия по наличию агрегатной функции.
+
+  Сгенерированный код для запроса «\textit{Выведи начальников, округлённую среднюю зарплату по начальникам, где минимальная зарплата > 6000 и есть менеджер, отсортируй по средней зарплате по убыванию}»:
+
+  \begin{minted}[tabsize=2, mathescape, fontsize=\footnotesize]{sql}
+SELECT manager_id, ROUND(AVG(salary))
+FROM hr.employees
+WHERE manager_id IS NOT NULL
+GROUP BY manager_id
+HAVING MIN(salary) > 6000
+ORDER BY AVG(salary) DESC
+  \end{minted}
+
+\end{frame}

@@ -1,0 +1,15 @@
+%!TeX root = ../Asq.tex
+\begin{frame}[fragile]{Запрос с соединением таблиц}%
+  Для всех таблиц автоматически вычисляются минимальные пути до других таблиц.
+
+  Сгенерированный код для запроса «\textit{$ \underbrace{\text{Имя, фамилия работника}}_{\text{employees}} $ и $ \underbrace{\text{страна}}_{\text{countries}} $}»:
+
+  \begin{minted}[tabsize=2, mathescape, fontsize=\footnotesize]{sql}
+SELECT "t-1".first_name, "t-1".last_name, "t-4".*
+FROM hr.employees "t-1"
+  JOIN hr.departments "t-2" ON "t-1".department_id = "t-2".department_id
+  JOIN hr.locations "t-3" ON "t-2".location_id = "t-3".location_id
+  JOIN hr.countries "t-4" ON "t-3".country_id = "t-4".country_id
+  \end{minted}
+
+\end{frame}

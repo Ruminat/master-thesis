@@ -1,0 +1,7 @@
+\begin{Verbatim}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8}]
+\PYG{k}{SELECT} \PYG{l+s+ss}{\PYGZdq{}t\PYGZhy{}1\PYGZdq{}}\PYG{p}{.}\PYG{n}{first\PYGZus{}name}\PYG{p}{,} \PYG{l+s+ss}{\PYGZdq{}t\PYGZhy{}1\PYGZdq{}}\PYG{p}{.}\PYG{n}{last\PYGZus{}name}\PYG{p}{,} \PYG{l+s+ss}{\PYGZdq{}t\PYGZhy{}4\PYGZdq{}}\PYG{p}{.}\PYG{o}{*}
+\PYG{k}{FROM} \PYG{n}{hr}\PYG{p}{.}\PYG{n}{employees} \PYG{l+s+ss}{\PYGZdq{}t\PYGZhy{}1\PYGZdq{}}
+  \PYG{k}{JOIN} \PYG{n}{hr}\PYG{p}{.}\PYG{n}{departments} \PYG{l+s+ss}{\PYGZdq{}t\PYGZhy{}2\PYGZdq{}} \PYG{k}{ON} \PYG{l+s+ss}{\PYGZdq{}t\PYGZhy{}1\PYGZdq{}}\PYG{p}{.}\PYG{n}{department\PYGZus{}id} \PYG{o}{=} \PYG{l+s+ss}{\PYGZdq{}t\PYGZhy{}2\PYGZdq{}}\PYG{p}{.}\PYG{n}{department\PYGZus{}id}
+  \PYG{k}{JOIN} \PYG{n}{hr}\PYG{p}{.}\PYG{n}{locations} \PYG{l+s+ss}{\PYGZdq{}t\PYGZhy{}3\PYGZdq{}} \PYG{k}{ON} \PYG{l+s+ss}{\PYGZdq{}t\PYGZhy{}2\PYGZdq{}}\PYG{p}{.}\PYG{n}{location\PYGZus{}id} \PYG{o}{=} \PYG{l+s+ss}{\PYGZdq{}t\PYGZhy{}3\PYGZdq{}}\PYG{p}{.}\PYG{n}{location\PYGZus{}id}
+  \PYG{k}{JOIN} \PYG{n}{hr}\PYG{p}{.}\PYG{n}{countries} \PYG{l+s+ss}{\PYGZdq{}t\PYGZhy{}4\PYGZdq{}} \PYG{k}{ON} \PYG{l+s+ss}{\PYGZdq{}t\PYGZhy{}3\PYGZdq{}}\PYG{p}{.}\PYG{n}{country\PYGZus{}id} \PYG{o}{=} \PYG{l+s+ss}{\PYGZdq{}t\PYGZhy{}4\PYGZdq{}}\PYG{p}{.}\PYG{n}{country\PYGZus{}id}
+\end{Verbatim}

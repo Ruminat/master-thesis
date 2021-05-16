@@ -1,0 +1,5 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+    \PYG{k}{SELECT} \PYG{o}{*}
+    \PYG{k}{FROM} \PYG{n}{dual}
+    \PYG{k}{WHERE} \PYG{n}{employee\PYGZus{}id} \PYG{o}{=} \PYG{l+m+mi}{1729}\PYG{p}{;}
+\end{Verbatim}

@@ -1,0 +1,44 @@
+\documentclass[aspectratio=169, 10pt]{beamer}
+\input{packages.tex}
+
+\usepackage{tikz}
+\usetikzlibrary{arrows,automata,positioning}
+\usepackage{lastpage}
+
+\usepackage{unicode-math}
+% \setmainfont{FiraCode-Retina.ttf}
+\setmonofont[Scale=0.85]{JetBrainsMono-Regular.ttf}
+\setmathfont{mathFont.ttf}
+
+\usepackage{minted}
+
+\begin{document}
+  
+  \nocite{*}
+  % \setbeamertemplate{footline}{\insertframenumber/\inserttotalframenumber}
+
+  \input{slides/title.tex}
+  % \input{slides/tasks.tex}
+  % \input{slides/motivation.tex}
+  % \input{slides/methods.tex}
+  % \input{slides/regex.tex}
+  % \input{slides/patterns.tex}
+  % \input{slides/steps.tex}
+  % \input{slides/architecture.tex}
+  % \input{slides/app.tex}
+  % \input{slides/translator.tex}
+  % \input{slides/names.tex}
+  % \input{slides/join.tex}
+  % \input{slides/different.tex}
+  % \input{slides/conditions.tex}
+  % \input{slides/conclusion.tex}
+
+
+  % \begin{minted}[tabsize=2, mathescape, fontsize=\footnotesize]{sql}
+  %   SELECT last_name, first_name, salary
+  %   FROM hr.employees
+  %   WHERE TRIM(LOWER(first_name)) = TRIM(LOWER('David'))
+  %     OR salary > 10000
+  %   ORDER BY salary DESC, first_name;
+  % \end{minted}
+\end{document}

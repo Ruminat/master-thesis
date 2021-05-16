@@ -1,0 +1,33 @@
+%!TeX root = ../Asq.tex
+\begin{frame}[fragile]{Абстрактные регулярные выражения}%
+  \begin{itemize}%
+    \item Являются обобщением регулярных выражений;
+    \item принцип работы основан на недетерминированных конечных автоматах;
+    \item работают с объектами любой природы и любыми предикатами;
+    \item выполняют поиск среди токенов, \textbf{сохраняя структуру шаблона};
+    \item позволяют писать шаблоны в \textbf{декларативном стиле}.
+  \end{itemize}
+
+  \begin{figure}[H]%
+    \small
+    \centering
+    Конечный автомат для регулярного выражения \texttt{table (connector table)*}
+    \begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=4cm, semithick]
+      \tikzstyle{every state}=[fill=none,draw=black,text=black]
+
+      \node[initial,state]     (E)                    {$A$};
+      \node[state]             (A) [right=1.6cm of E] {$B$};
+      \node[state]             (B) [right=2.2cm of A] {$C$};
+      \node[state]             (C) [right=1.6cm of B] {$D$};
+      \node[accepting,state]   (D) [right=0.6cm of C] {$E$};
+
+      \path (A) edge node {\texttt{connector}} (B)
+            (B) edge node {\texttt{table}} (C)
+            (A) edge [bend left] node {} (C)
+            (C) edge [bend left] node {\texttt{connector}} (B)
+            (C) edge node {} (D)
+            (E) edge node {\texttt{table}} (A);
+    \end{tikzpicture}
+  \end{figure}
+  Ему соответствует, к примеру, такой запрос: «\textit{сотрудники, отделы и страны}».
+\end{frame}

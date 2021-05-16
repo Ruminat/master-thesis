@@ -1,0 +1,8 @@
+\begin{Verbatim}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8}]
+\PYG{k}{SELECT} \PYG{n}{last\PYGZus{}name}\PYG{p}{,} \PYG{n}{first\PYGZus{}name}\PYG{p}{,} \PYG{n}{salary}
+\PYG{k}{FROM} \PYG{n}{hr}\PYG{p}{.}\PYG{n}{employees}
+\PYG{k}{WHERE} \PYG{n}{salary} \PYG{o}{\PYGZgt{}} \PYG{l+m+mi}{10000}
+  \PYG{c+c1}{\PYGZhy{}\PYGZhy{} здесь неявно для пользователя используются TRIM и LOWER.}
+  \PYG{k}{OR} \PYG{k}{TRIM}\PYG{p}{(}\PYG{k}{LOWER}\PYG{p}{(}\PYG{n}{first\PYGZus{}name}\PYG{p}{))} \PYG{o}{=} \PYG{k}{TRIM}\PYG{p}{(}\PYG{k}{LOWER}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}David\PYGZsq{}}\PYG{p}{))}
+\PYG{k}{ORDER} \PYG{k}{BY} \PYG{n}{salary} \PYG{k}{DESC}\PYG{p}{,} \PYG{n}{first\PYGZus{}name}
+\end{Verbatim}

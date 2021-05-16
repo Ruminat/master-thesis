@@ -1,0 +1,7 @@
+# Fdb version 3
+["pdflatex"] 0 "my_thesis.tex" "my_thesis.pdf" "my_thesis" 0
+  "my_thesis.tex" 0 -1 0 ""
+  "temp/my_thesis.aux" 1605972185 9 a94a2480d3289e625eea47cd1b285758 ""
+  (generated)
+  "temp/my_thesis.log"
+  "my_thesis.pdf"

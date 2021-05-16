@@ -1,0 +1,19 @@
+%!TeX root = ../Asq.tex
+\begin{frame}[fragile]{Различные формулировки запроса}%
+  Оба запроса:
+  \begin{enumerate}%
+    \item «\textit{Выведи фамилию, имя и зарплату сотрудников с зарплатой больше 10000 или именем = 'David', отсортируй по зарплате по убыванию и по имени}»;
+    \item «\textit{Сортировка по заработку по убыванию и имени, причём зарплата выше 10000 или имя равно 'David', вывести нужно фамилию, имя и оклад}»;
+  \end{enumerate}
+  "--- дают одинаковый результат:
+
+  \begin{minted}[tabsize=2, mathescape, fontsize=\footnotesize]{sql}
+SELECT last_name, first_name, salary
+FROM hr.employees
+WHERE salary > 10000
+  -- здесь неявно для пользователя используются TRIM и LOWER.
+  OR TRIM(LOWER(first_name)) = TRIM(LOWER('David'))
+ORDER BY salary DESC, first_name
+  \end{minted}
+
+\end{frame}
