@@ -1,6 +1,19 @@
 %!TeX root = ../My_thesis.tex
 
 
+% @inproceedings{my-dataset,
+%     title = "Crowdsourced Corpus of Sentence Simplification with Core Vocabulary",
+%     author = "Katsuta, Akihiro  and
+%       Yamamoto, Kazuhide",
+%     booktitle = "Proceedings of the Eleventh International Conference on Language Resources and Evaluation ({LREC} 2018)",
+%     month = may,
+%     year = "2018",
+%     address = "Miyazaki, Japan",
+%     publisher = "European Language Resources Association (ELRA)",
+%     url = "https://www.aclweb.org/anthology/L18-1072",
+% }
+
+
 % .---|||___|||--- C H A P T E R ---|||___|||---. %
 \chapter{Детали практической реализации}
 % .---|||___|||--- C H A P T E R ---|||___|||---. %
@@ -13,7 +26,7 @@
 
 В данной работе используются следующие инструменты:
 \begin{enumerate}[1.]%
-  \item Машинное обучение. Для обучения модели будет использоваться Python в связке с фреймворком для машинного обучения PyTorch~\cite{PyTorch}, предоставляющий широкие возможности для реализации нейронных сетей, в том числе, там присутствует поддержка ранее упомянутых трансформеров.
+  \item Машинное обучение. Для обучения модели будет использоваться Python в связке с фреймворком для машинного обучения PyTorch~\cite{PyTorch}, предоставляющий широкие возможности для реализации нейронных сетей, в том числе, там присутствует поддержка ранее упомянутых Transformer'ов.
   \item Токенизация. Для токенизации японского текста будет использоваться библиотека MeCab~\cite{MeCab}.
   \item Эмбеддинги. Готовые модели с эмбеддингами могут быть взяты из Python-библиотеки FastText~\cite{FastText} (в том числе там есть эмбеддинги для японского языка).
   \item Сервер. Тут, опять же, будет использован Python с фреймворком Falcon~\cite{Falcon}, позволяющим создавать легковесный back-end. То есть будет реализован REST API сервер.
@@ -24,7 +37,7 @@
 
 
 % .---|||___|||--- S E C T I O N ---|||___|||---. %
-\section{Как устроен трансформер изнутри}
+\section{Как устроен Transformer изнутри}
 % .---|||___|||--- S E C T I O N ---|||___|||---. %
 
 
@@ -72,10 +85,10 @@ def scaledDotProductAttention(
 
 \begin{equation}\label{mask-matrix}%
   \begin{bmatrix}
-    0. & -\infty & -\infty & -\infty \\
-    0. & 0. & -\infty & -\infty \\ 
-    0. & 0. & 0. & -\infty \\ 
-    0. & 0. & 0. & 0. \\ 
+    0 & -\infty & -\infty & -\infty \\
+    0 & 0 & -\infty & -\infty \\ 
+    0 & 0 & 0 & -\infty \\ 
+    0 & 0 & 0 & 0 \\ 
   \end{bmatrix}  
 \end{equation}
 
