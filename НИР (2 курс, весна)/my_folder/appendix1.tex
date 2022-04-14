@@ -1,146 +1,56 @@
-\chapter{Краткие инструкции по настройке издательской системы \LaTeX}\label{appendix-MikTeX-TexStudio}							% Заголовок
+\chapter{Исходный код}\label{appendix-code}							% Заголовок
 %\addcontentsline{toc}{chapter}{Second call for chapters to participate in the book Machine learning in analysis of biomedical and socio-economic data}	% Добавляем его в оглавление
 
-В SPbPU-BCI-template {\itshape автоматически выставляются необходимые настройки и в исходном тексте шаблона приведены примеры оформления текстово-графических объектов}, поэтому авторам достаточно заполнить имеющийся шаблон текстом главы (статьи), не вдаваясь в детали оформления, описанные далее. Возможный <<быстрый старт>> оформления главы (статьи) под Windows следующий\footnote{Внимание! Пример оформления подстрочной ссылки (сноски).}:
+\newcommand{\sourceCodeFile}[2]{%
+	Файл \texttt{#1} (#2):
+	\inputminted[tabsize=2, mathescape, fontsize=\fontsize{10}{10}\selectfont]{python}{code/#1}%
+}
 
-\begin{enumerate}
-	\item Установка полной версии MikTeX  \cite{latex-miktex}.  В процессе установки лучше выставить параметр доустановки пакетов <<на лету>>.
-	
-	\item Установка TexStudio \cite{latex-texstudio}.
-	
-%		\item установка шрифтов PSCyr для работы с TimesNew\-Roman\-PSMT  	\href{https://github.com/AndreyAkinshin/Russian-Phd-LaTeX-Dissertation-Template/blob/master/PSCyr/Windows.md}{по данной инструкции}. В итоговом документе будет, скорее всего, использован Newton.
-	
-%	\item Переименование следующих файлов, где вместо \texttt{AuthorsSur\-names} необходимо подставить фамилии авторов (можно сокращать до первых четырех букв): 
-%	
-%	\begin{enumerate}
-%		\item Основной файл \texttt{Book\_title\_ch\_Authors\-Sur\-names.tex}.
-%		\item Библиография \texttt{biblio\textbackslash{}Book\_title\_bib\_Authors\-Sur\-na\-mes\-.bib}.
-%		\item Пользовательские настройки (при необходимости), \texttt{common\textbackslash{}Book\_\-tit\-le\_ext\_Authors\-Sur\-names.tex}. 
-%	\end{enumerate}
-%	
-%	\item После открытия основного файла \texttt{Book\_title\_ch\_Authors\-Sur\-names.tex} (с новым названием)   переименовать названия по аналогии в следующих командах \texttt{\textbackslash{}input\{\}}:
-%	
-%	\begin{enumerate}
-%		\item \texttt{biblio/Book\_title\_bib\_Authors\-Sur\-names.bib},
-%		\item \texttt{common/Book\_title\_ext\_Authors\-Sur\-names.tex (при необходимости) }.
-%	\end{enumerate}
-%	
-	
-	\item Запуск TexStudio и компиляция \verb|my_chapter.tex| с помощью команды <<Build\&View>> (например, с помощью двойной зелёной стрелки в верхней панели). {\itshape Иногда, для достижения нужного результата необходимо несколько раз скомпилировать документ.}
-	
-	\item В случае, если не отобразилась библиография, можно
-	
-	\begin{itemize}
-		\item воспользоваться командой Tools $\to$ Commands $\to$ Biber, затем запустив Build\&View;
-		
-		\item настроить автоматическое включение библиографии в настройках Options $\to$ Configure TexStudio $\to$ Build $\to$  Build\&View (оставить по умолчанию, если сборка происходит слишком долго): \texttt{txs:///pdflatex | txs:///biber | txs:///pdflatex | txs:///pdflatex | txs:///\-view-pdf}.
-	\end{itemize}
-	
-\end{enumerate}
+\sourceCodeFile{main.py}{главный файл для запуска обучения модели или старта сервера}
+\sourceCodeFile{definitions.py}{основные определения и константы}
+\sourceCodeFile{utils.py}{утилиты для запуска модели}
 
-В случае возникновения ошибок, попробуйте скомпилировать документ до последних действий или внимательно ознакомьтесь с описанием проблемы в log-файле. Бывает полезным переход (по подсказке TexStudio) в нужную строку в pdf-файле или запрос с текстом ошибке в поисковиках. Наиболее вероятной проблемой при первой компиляции может быть отсутствие какого-либо установленного пакета \LaTeX. 
+\sourceCodeFile{apps/SimplificationServer/main.py}{сервер на Falcon}
+\sourceCodeFile{modules/Parser/definitions.py}{MeCab-токен}
+\sourceCodeFile{modules/Parser/utils.py}{токенизация через MeCab}
 
-В случае корректной работы настройки <<установка на лету>> все дополнительные пакеты будут скачиваться и устанавливаться в автоматическом режиме. Если доустановка пакетов осуществляется медленно (несколько пакетов за один запуск компилятора), то можно попробовать установить их в ручном режиме следующим образом:
+\sourceCodeFile{apps/Transformer/main.py}{запуск обучения/загрузки модели из сохраннёного файла из директории \texttt{/build}}
 
-\begin{enumerate}[1.]
-	\item Запустите программу: меню $\to$ все программы $\to$ MikTeX $\to$ Maintenance (Admin) $\to$ MiKTeX Package Manager (Admin).
-	\item Пользуясь поиском, убедитесь, что нужный пакет присутствует, но не установлен (если пакет отсутствует воспользуйтесь сначала MiKTeX Update (Admin)).
-	\item Выделив строку с пакетом (возможно выбрать несколько или вообще все неустановленные пакеты), выполните установку Tools $\to$ Install или с помощью контекстного меню.
-	\item После завершения установки запустите программу MiKTeX Settings (Admin).
-	\item Обновите базу данных имен файлов Refresh FNDB.
-\end{enumerate}
+\sourceCodeFile{modules/Seq2SeqTransformer/main.py}{модель sequence2sequence Transformer "--- финальная модель для упрощения}
+\sourceCodeFile{modules/Seq2SeqTransformer/utils.py}{утилиты для обучения модели упрощения}
 
+\sourceCodeFile{modules/PositionalEncoding/main.py}{модель positional encoding}
 
-Для проверки текста статьи на русском языке полезно также воспользоваться настройками Options $\to$ Configure TexStudio $\to$ Language Checking $\to$  Default Language. Если русский язык <<ru\_RU>> не будет доступен в меню выбора, то необходимо вначале выполнить Import Dictionary, скачав из интернета любой русскоязычный словарь. 
+\sourceCodeFile{modules/Embedding/main.py}{модель эмбеддингов}
 
+\sourceCodeFile{modules/Language/definitions.py}{определения языков}
+\sourceCodeFile{modules/Language/utils.py}{утилиты для обработки языков}
 
-%\chapter{\normalfont\normalsize{}Часто задаваемые вопросы (FAQ)}\label{Appendix-FAQ}							% Заголовок
-%%\addcontentsline{toc}{chapter}{Second call for chapters to participate in the book Machine learning in analysis of biomedical and socio-economic data}	% Добавляем его в оглавление
+\sourceCodeFile{modules/Dataset/main.py}{класс корпуса}
+\sourceCodeFile{modules/Dataset/definitions.py}{типы для корпусов}
+\sourceCodeFile{modules/Dataset/snowSimplifiedJapanese/main.py}{корпус упрощения предложений на японском языке SNOW (T15 и T23)}
 
+% \sourceCodeFile{modules/Metrics/bleu.py}{метрика BLEU}
+% \sourceCodeFile{modules/Metrics/sari.py}{метрика SARI}
 
-Далее приведены формулы \eqref{eq:Pi-app2}, \eqref{eq:Pi-app2-},  \firef{fig:spbpu_hydrotower-app2}, \firef{fig:spbpu_hydrotower-app2-}, \taref{tab:ToyCompare-app2}, \taref{tab:ToyCompare-app2-}.
+% \begin{minted}[tabsize=2, mathescape, linenos, xleftmargin=20pt, fontsize=\scriptsize]{python}
+% def scaledDotProductAttention(
+%   query: Tensor,
+%   key: Tensor,
+%   value: Tensor,
+%   mask: Optional[Tensor] = None
+% ) -> Tensor:
+%   # Считаем scale, на который будем делить
+%   scale = query.size(-1) ** 0.5
+%   # Перемножаем матрицы query и key, делим их на scale
+%   temp = query.bmm(key.transpose(1, 2)) / scale
 
+%   # Применяем маску, если она есть
+%   if (mask is not None):
+%     temp += mask
 
-\begin{equation}% лучше не оставлять пропущенную строку (\par) перед окружениями для избежания лишних отсупов в pdf
-\label{eq:Pi-app2-} % eq - equations, далее название, ch поставлено для избежания дублирования
-\pi \approx 3,141.
-\end{equation}
-
-%
-\begin{figure}[ht!] 
-	\center
-	\includegraphics [scale=0.27] {my_folder/images//spbpu_hydrotower}
-	\caption{Вид на гидробашню СПбПУ \cite{spbpu-gallery}} 
-	\label{fig:spbpu_hydrotower-app2-}  
-\end{figure}
-
-\begin{table} [htbp]% Пример оформления таблицы
-	\centering\small
-	\caption{Представление данных для сквозного примера по ВКР \cite{Peskov2004}}%
-	\label{tab:ToyCompare-app2-}		
-	\begin{tabular}{|l|l|l|l|l|l|}
-		\hline
-		$G$&$m_1$&$m_2$&$m_3$&$m_4$&$K$\\
-		\hline
-		$g_1$&0&1&1&0&1\\ \hline
-		$g_2$&1&2&0&1&1\\ \hline
-		$g_3$&0&1&0&1&1\\ \hline
-		$g_4$&1&2&1&0&2\\ \hline
-		$g_5$&1&1&0&1&2\\ \hline
-		$g_6$&1&1&1&2&2\\ \hline		
-	\end{tabular}	
-	\normalsize% возвращаем шрифт к нормальному
-\end{table}
-
-
-
-
-\section{Параграф приложения}\label{app-2-1}							
-
-
-\subsection{Название подпараграфа} \label{ch2:subsec-title-abbr} %название по-русски
-
-
-Название подпараграфа оформляется с помощью команды  \texttt{\textbackslash{}subsection\{...\}}.
-
-Использование подподпараграфов в основной части крайне не рекомендуется.
-\subsubsection{Название подподпараграфа}\label{ch2:subsubsec-title-abbr} %название по-русски
-
-\begin{equation}% лучше не оставлять пропущенную строку (\par) перед окружениями для избежания лишних отсупов в pdf
-\label{eq:Pi-app2} % eq - equations, далее название, ch поставлено для избежания дублирования
-\pi \approx 3,141.
-\end{equation}
-%
-%
-\begin{figure}[ht!] 
-	\center
-	\includegraphics [scale=0.27] {my_folder/images//spbpu_hydrotower}
-	\caption{Вид на гидробашню СПбПУ \cite{spbpu-gallery}} 
-	\label{fig:spbpu_hydrotower-app2}  
-\end{figure}
-%
-
-
-
-
-\begin{table}[t!]% Пример оформления таблицы
-	\centering\small
-	\caption{Представление данных для сквозного примера по ВКР \cite{Peskov2004}}%
-	\label{tab:ToyCompare-app2}		
-	\begin{tabular}{|l|l|l|l|l|l|}
-		\hline
-		$G$&$m_1$&$m_2$&$m_3$&$m_4$&$K$\\
-		\hline
-		$g_1$&0&1&1&0&1\\ \hline
-		$g_2$&1&2&0&1&1\\ \hline
-		$g_3$&0&1&0&1&1\\ \hline
-		$g_4$&1&2&1&0&2\\ \hline
-		$g_5$&1&1&0&1&2\\ \hline
-		$g_6$&1&1&1&2&2\\ \hline		
-	\end{tabular}	
-	\normalsize% возвращаем шрифт к нормальному
-\end{table}
-
-
-%% В случае, когда таблица (рисунок) размещаются на последней странице, для переноса названия приложения на новую строку используем:
-\NewPage % начать новое приложение с новой страницы 
+%   # Применяем softmax к измерению embedding'ов
+%   softmax = f.softmax(temp, dim=-1)
+%   # Перемножаем softmax с матрицей value
+%   return softmax.bmm(value)
+% \end{minted}

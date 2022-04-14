@@ -1,0 +1,68 @@
+\begin{Verbatim}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8\relax}]
+\PYG{k+kn}{import} \PYG{n+nn}{torch}
+
+\PYG{k+kn}{from} \PYG{n+nn}{definitions} \PYG{k+kn}{import} \PYG{p}{(}\PYG{n}{BATCH\PYGZus{}SIZE}\PYG{p}{,} \PYG{n}{BETAS}\PYG{p}{,} \PYG{n}{DATASET}\PYG{p}{,} \PYG{n}{DEFAULT\PYGZus{}MODEL\PYGZus{}FILENAME}\PYG{p}{,}
+                         \PYG{n}{DEVICE}\PYG{p}{,} \PYG{n}{DIM\PYGZus{}FEEDFORWARD}\PYG{p}{,} \PYG{n}{EMB\PYGZus{}SIZE}\PYG{p}{,} \PYG{n}{EPSILON}\PYG{p}{,}
+                         \PYG{n}{LEARNING\PYGZus{}RATE}\PYG{p}{,} \PYG{n}{MODELS\PYGZus{}DIR}\PYG{p}{,} \PYG{n}{NHEAD}\PYG{p}{,} \PYG{n}{NUM\PYGZus{}DECODER\PYGZus{}LAYERS}\PYG{p}{,}
+                         \PYG{n}{NUM\PYGZus{}EPOCHS}\PYG{p}{,} \PYG{n}{SEED}\PYG{p}{,} \PYG{n}{SRC\PYGZus{}LANGUAGE}\PYG{p}{,} \PYG{n}{SRC\PYGZus{}VOCAB\PYGZus{}SIZE}\PYG{p}{,}
+                         \PYG{n}{TGT\PYGZus{}LANGUAGE}\PYG{p}{,} \PYG{n}{TGT\PYGZus{}VOCAB\PYGZus{}SIZE}\PYG{p}{,} \PYG{n}{WEIGHT\PYGZus{}DECAY}\PYG{p}{,} \PYG{n}{textTransform}\PYG{p}{)}
+\PYG{k+kn}{from} \PYG{n+nn}{modules.Language.definitions} \PYG{k+kn}{import} \PYG{n}{PAD\PYGZus{}IDX}
+\PYG{k+kn}{from} \PYG{n+nn}{modules.Seq2SeqTransformer.main} \PYG{k+kn}{import} \PYG{n}{Seq2SeqTransformer}
+\PYG{k+kn}{from} \PYG{n+nn}{modules.Seq2SeqTransformer.utils} \PYG{k+kn}{import} \PYG{p}{(}\PYG{n}{initializeTransformerParameters}\PYG{p}{,}
+                                              \PYG{n}{train}\PYG{p}{)}
+
+
+\PYG{k}{def} \PYG{n+nf}{initiatePyTorch}\PYG{p}{()} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{k+kc}{None}\PYG{p}{:}
+  \PYG{n}{torch}\PYG{o}{.}\PYG{n}{manual\PYGZus{}seed}\PYG{p}{(}\PYG{n}{SEED}\PYG{p}{)}
+  \PYG{n}{torch}\PYG{o}{.}\PYG{n}{cuda}\PYG{o}{.}\PYG{n}{empty\PYGZus{}cache}\PYG{p}{()}
+  \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}Running PyTorch on }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{DEVICE}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{ with seed=}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{SEED}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+
+\PYG{k}{def} \PYG{n+nf}{prettyPrintTranslation}\PYG{p}{(}\PYG{n}{transformer}\PYG{p}{:} \PYG{n}{Seq2SeqTransformer}\PYG{p}{,} \PYG{n}{sourceSentence}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{k+kc}{None}\PYG{p}{:}
+  \PYG{n}{src} \PYG{o}{=} \PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}«}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{sourceSentence}\PYG{o}{.}\PYG{n}{strip}\PYG{p}{()}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{»\PYGZdq{}}
+  \PYG{n}{result} \PYG{o}{=} \PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}«}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{transformer}\PYG{o}{.}\PYG{n}{translate}\PYG{p}{(}\PYG{n}{sourceSentence}\PYG{p}{)}\PYG{o}{.}\PYG{n}{strip}\PYG{p}{()}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{»\PYGZdq{}}
+  \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Translating:\PYGZdq{}}\PYG{p}{,} \PYG{n}{src}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}\PYGZhy{}\PYGZgt{}\PYGZdq{}}\PYG{p}{,} \PYG{n}{result}\PYG{p}{)}
+
+\PYG{k}{def} \PYG{n+nf}{loadTransformer}\PYG{p}{(}\PYG{n}{fileName}\PYG{p}{:} \PYG{n+nb}{str} \PYG{o}{=} \PYG{n}{DEFAULT\PYGZus{}MODEL\PYGZus{}FILENAME}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{Seq2SeqTransformer}\PYG{p}{:}
+  \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Loading Transformer...\PYGZdq{}}\PYG{p}{)}
+  \PYG{n}{transformer} \PYG{o}{=} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{load}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{MODELS\PYGZus{}DIR}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{/}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{fileName}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+  \PYG{n}{transformer}\PYG{o}{.}\PYG{n}{eval}\PYG{p}{()}
+  \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Transformer is ready to use\PYGZdq{}}\PYG{p}{)}
+  \PYG{k}{return} \PYG{n}{transformer}
+
+\PYG{k}{def} \PYG{n+nf}{getTrainedTransformer}\PYG{p}{(}\PYG{n}{fileName}\PYG{p}{:} \PYG{n+nb}{str} \PYG{o}{=} \PYG{n}{DEFAULT\PYGZus{}MODEL\PYGZus{}FILENAME}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{Seq2SeqTransformer}\PYG{p}{:}
+  \PYG{n}{transformer} \PYG{o}{=} \PYG{n}{Seq2SeqTransformer}\PYG{p}{(}
+    \PYG{n}{batchSize}\PYG{o}{=}\PYG{n}{BATCH\PYGZus{}SIZE}\PYG{p}{,}
+    \PYG{n}{srcLanguage}\PYG{o}{=}\PYG{n}{SRC\PYGZus{}LANGUAGE}\PYG{p}{,}
+    \PYG{n}{tgtLanguage}\PYG{o}{=}\PYG{n}{TGT\PYGZus{}LANGUAGE}\PYG{p}{,}
+    \PYG{n}{num\PYGZus{}encoder\PYGZus{}layers} \PYG{o}{=} \PYG{n}{NUM\PYGZus{}DECODER\PYGZus{}LAYERS}\PYG{p}{,}
+    \PYG{n}{num\PYGZus{}decoder\PYGZus{}layers} \PYG{o}{=} \PYG{n}{NUM\PYGZus{}DECODER\PYGZus{}LAYERS}\PYG{p}{,}
+    \PYG{n}{embeddingSize} \PYG{o}{=} \PYG{n}{EMB\PYGZus{}SIZE}\PYG{p}{,}
+    \PYG{n}{nhead} \PYG{o}{=} \PYG{n}{NHEAD}\PYG{p}{,}
+    \PYG{n}{srcVocabSize} \PYG{o}{=} \PYG{n}{SRC\PYGZus{}VOCAB\PYGZus{}SIZE}\PYG{p}{,}
+    \PYG{n}{tgtVocabSize} \PYG{o}{=} \PYG{n}{TGT\PYGZus{}VOCAB\PYGZus{}SIZE}\PYG{p}{,}
+    \PYG{n}{dim\PYGZus{}feedforward} \PYG{o}{=} \PYG{n}{DIM\PYGZus{}FEEDFORWARD}\PYG{p}{,}
+    \PYG{n}{device}\PYG{o}{=}\PYG{n}{DEVICE}
+  \PYG{p}{)}
+  \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Created the Transformer model\PYGZdq{}}\PYG{p}{)}
+  \PYG{n}{initializeTransformerParameters}\PYG{p}{(}\PYG{n}{transformer}\PYG{p}{)}
+  \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Initialized parameters\PYGZdq{}}\PYG{p}{)}
+
+  \PYG{n}{transformer} \PYG{o}{=} \PYG{n}{transformer}\PYG{o}{.}\PYG{n}{to}\PYG{p}{(}\PYG{n}{DEVICE}\PYG{p}{)}
+  \PYG{n}{lossFn} \PYG{o}{=} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{nn}\PYG{o}{.}\PYG{n}{CrossEntropyLoss}\PYG{p}{(}\PYG{n}{ignore\PYGZus{}index}\PYG{o}{=}\PYG{n}{PAD\PYGZus{}IDX}\PYG{p}{)}
+  \PYG{n}{optimizer} \PYG{o}{=} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{optim}\PYG{o}{.}\PYG{n}{Adam}\PYG{p}{(}
+    \PYG{n}{transformer}\PYG{o}{.}\PYG{n}{parameters}\PYG{p}{(),}
+    \PYG{n}{lr}\PYG{o}{=}\PYG{n}{LEARNING\PYGZus{}RATE}\PYG{p}{,}
+    \PYG{n}{weight\PYGZus{}decay}\PYG{o}{=}\PYG{n}{WEIGHT\PYGZus{}DECAY}\PYG{p}{,}
+    \PYG{n}{betas}\PYG{o}{=}\PYG{n}{BETAS}\PYG{p}{,}
+    \PYG{n}{eps}\PYG{o}{=}\PYG{n}{EPSILON}
+  \PYG{p}{)}
+  \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Created lossFn and optimizer\PYGZdq{}}\PYG{p}{)}
+
+  \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Training the model...\PYGZdq{}}\PYG{p}{)}
+  \PYG{n}{train}\PYG{p}{(}\PYG{n}{transformer}\PYG{p}{,} \PYG{n}{optimizer}\PYG{p}{,} \PYG{n}{lossFn}\PYG{p}{,} \PYG{n}{textTransform}\PYG{p}{,} \PYG{n}{NUM\PYGZus{}EPOCHS}\PYG{p}{,} \PYG{n}{DATASET}\PYG{p}{)}
+  \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}The model has trained well\PYGZdq{}}\PYG{p}{)}
+
+  \PYG{n}{torch}\PYG{o}{.}\PYG{n}{save}\PYG{p}{(}\PYG{n}{transformer}\PYG{p}{,} \PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{MODELS\PYGZus{}DIR}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{/}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{fileName}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+
+  \PYG{k}{return} \PYG{n}{transformer}
+\end{Verbatim}

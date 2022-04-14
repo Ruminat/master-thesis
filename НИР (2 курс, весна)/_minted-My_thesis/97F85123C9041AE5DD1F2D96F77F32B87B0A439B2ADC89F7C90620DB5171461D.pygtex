@@ -1,0 +1,26 @@
+\begin{Verbatim}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8\relax}]
+\PYG{k+kn}{import} \PYG{n+nn}{MeCab}
+
+\PYG{n}{wakati} \PYG{o}{=} \PYG{n}{MeCab}\PYG{o}{.}\PYG{n}{Tagger}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}\PYGZhy{}Owakati\PYGZdq{}}\PYG{p}{)}
+\PYG{n}{tagger} \PYG{o}{=} \PYG{n}{MeCab}\PYG{o}{.}\PYG{n}{Tagger}\PYG{p}{()}
+
+\PYG{c+c1}{\PYGZsh{} Text to MeCab tokens:}
+\PYG{c+c1}{\PYGZsh{} \PYGZdq{}お前\PYGZdq{} \PYGZhy{}\PYGZgt{} [\PYGZob{} \PYGZdq{}token\PYGZsq{}: \PYGZdq{}お前\PYGZdq{}, \PYGZdq{}partOfSpeech\PYGZdq{}: \PYGZdq{}代名詞\PYGZdq{} \PYGZcb{}]}
+\PYG{k}{def} \PYG{n+nf}{getMeCabTokens}\PYG{p}{(}\PYG{n}{text}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n+nb}{list}\PYG{p}{[}\PYG{n+nb}{dict}\PYG{p}{]:}
+  \PYG{n}{result} \PYG{o}{=} \PYG{p}{[]}
+  \PYG{k}{for} \PYG{n}{tokenParts} \PYG{o+ow}{in} \PYG{n}{tagger}\PYG{o}{.}\PYG{n}{parse}\PYG{p}{(}\PYG{n}{text}\PYG{p}{)}\PYG{o}{.}\PYG{n}{split}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{):}
+    \PYG{n}{parts} \PYG{o}{=} \PYG{n}{tokenParts}\PYG{o}{.}\PYG{n}{split}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+se}{\PYGZbs{}t}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+    \PYG{n}{token} \PYG{o}{=} \PYG{n}{parts}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}
+
+    \PYG{k}{if} \PYG{n}{token} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}} \PYG{o+ow}{or} \PYG{n}{token} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}EOS\PYGZdq{}}\PYG{p}{:}
+      \PYG{k}{continue}
+
+    \PYG{n}{resultToken} \PYG{o}{=} \PYG{p}{\PYGZob{}\PYGZcb{}}
+    \PYG{n}{resultToken}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}token\PYGZdq{}}\PYG{p}{]} \PYG{o}{=} \PYG{n}{token}
+
+    \PYG{k}{if} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{parts}\PYG{p}{)} \PYG{o}{\PYGZgt{}=} \PYG{l+m+mi}{5}\PYG{p}{:}
+      \PYG{n}{resultToken}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}partOfSpeech\PYGZdq{}}\PYG{p}{]} \PYG{o}{=} \PYG{n}{parts}\PYG{p}{[}\PYG{l+m+mi}{4}\PYG{p}{]}
+
+    \PYG{n}{result}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{resultToken}\PYG{p}{)}
+  \PYG{k}{return} \PYG{n}{result}
+\end{Verbatim}

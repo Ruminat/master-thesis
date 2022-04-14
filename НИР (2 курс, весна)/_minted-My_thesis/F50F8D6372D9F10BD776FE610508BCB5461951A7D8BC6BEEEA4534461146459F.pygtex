@@ -1,0 +1,9 @@
+\begin{Verbatim}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8\relax}]
+\PYG{k+kn}{from} \PYG{n+nn}{typing} \PYG{k+kn}{import} \PYG{n}{Callable}\PYG{p}{,} \PYG{n}{Union}
+
+\PYG{k+kn}{from} \PYG{n+nn}{datasets} \PYG{k+kn}{import} \PYG{n}{Dataset}\PYG{p}{,} \PYG{n}{DatasetDict}\PYG{p}{,} \PYG{n}{IterableDataset}\PYG{p}{,} \PYG{n}{IterableDatasetDict}
+
+\PYG{n}{TDataset} \PYG{o}{=} \PYG{n}{Union}\PYG{p}{[}\PYG{n}{DatasetDict}\PYG{p}{,} \PYG{n}{Dataset}\PYG{p}{,} \PYG{n}{IterableDatasetDict}\PYG{p}{,} \PYG{n}{IterableDataset}\PYG{p}{]}
+
+\PYG{n}{TDatasetFn} \PYG{o}{=} \PYG{n}{Callable}\PYG{p}{[[],} \PYG{n}{TDataset}\PYG{p}{]}
+\end{Verbatim}

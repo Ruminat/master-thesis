@@ -32,6 +32,7 @@
 \usepackage{float}
 
 \usepackage{amssymb}
+\usepackage{pdfpages}
 
 
 \usepackage{CJKutf8}
@@ -70,6 +71,7 @@
 % \input{my_folder/summary}        % Реферат 
                      % Убираем footnotes, дубли команд \abstractEn и \abstractRu 
 
+\includepdf[pages={1}]{title.pdf}
 \setcounter{page}{2}
 \input{my_folder/contents}             % Оглавление
 
@@ -101,7 +103,7 @@
 \appendix % не редактировать / keep unmodified
 
 
-% \input{my_folder/appendix1}          % Приложение 1
+\input{my_folder/appendix1}          % Приложение 1
 
 % \input{my_folder/appendix2}        % Приложение 2
 

@@ -1,0 +1,8 @@
+\begin{Verbatim}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8\relax}]
+\PYG{k+kn}{from} \PYG{n+nn}{typing} \PYG{k+kn}{import} \PYG{n}{Optional}
+
+\PYG{k}{class} \PYG{n+nc}{MeCabToken}\PYG{p}{:}
+  \PYG{k}{def} \PYG{n+nf+fm}{\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{token}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{,} \PYG{n}{partOfSpeech}\PYG{p}{:} \PYG{n}{Optional}\PYG{p}{[}\PYG{n+nb}{str}\PYG{p}{]} \PYG{o}{=} \PYG{k+kc}{None}\PYG{p}{):}
+    \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{token} \PYG{o}{=} \PYG{n}{token}
+    \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{partOfSpeech} \PYG{o}{=} \PYG{n}{partOfSpeech}
+\end{Verbatim}

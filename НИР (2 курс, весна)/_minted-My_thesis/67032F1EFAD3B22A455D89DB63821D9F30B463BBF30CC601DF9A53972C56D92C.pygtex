@@ -1,0 +1,49 @@
+\begin{Verbatim}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8\relax}]
+\PYG{k+kn}{import} \PYG{n+nn}{sys}
+\PYG{k+kn}{from} \PYG{n+nn}{importlib} \PYG{k+kn}{import} \PYG{n}{import\PYGZus{}module}
+
+\PYG{n}{\PYGZus{}\PYGZus{}version\PYGZus{}\PYGZus{}} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}0.0.1\PYGZdq{}}
+\PYG{n}{hadErrors} \PYG{o}{=} \PYG{k+kc}{False}
+
+\PYG{k}{try}\PYG{p}{:}
+  \PYG{k+kn}{from} \PYG{n+nn}{rich.console} \PYG{k+kn}{import} \PYG{n}{Console}
+  \PYG{n}{console} \PYG{o}{=} \PYG{n}{Console}\PYG{p}{()}
+\PYG{k}{except} \PYG{n+ne}{ImportError} \PYG{k}{as} \PYG{n}{e}\PYG{p}{:}
+  \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Module `Console` is not installed!\PYGZdq{}}\PYG{p}{)}
+  \PYG{k}{class} \PYG{n+nc}{MyConsole}\PYG{p}{:}
+    \PYG{k}{def} \PYG{n+nf}{print}\PYG{p}{(}\PYG{n}{content}\PYG{p}{):}
+      \PYG{n+nb}{print}\PYG{p}{(}\PYG{n}{content}\PYG{p}{)}
+  \PYG{n}{console} \PYG{o}{=} \PYG{n}{MyConsole}
+  \PYG{n}{hadErrors} \PYG{o}{=} \PYG{k+kc}{True}
+
+\PYG{k}{try}\PYG{p}{:}
+  \PYG{k+kn}{from} \PYG{n+nn}{rich.markdown} \PYG{k+kn}{import} \PYG{n}{Markdown}
+\PYG{k}{except} \PYG{n+ne}{ImportError} \PYG{k}{as} \PYG{n}{e}\PYG{p}{:}
+  \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Module `Markdown` is not installed!\PYGZdq{}}\PYG{p}{)}
+  \PYG{n}{Markdown} \PYG{o}{=} \PYG{n+nb}{str}
+  \PYG{n}{hadErrors} \PYG{o}{=} \PYG{k+kc}{True}
+
+\PYG{k}{def} \PYG{n+nf}{printHelp}\PYG{p}{():}
+  \PYG{k}{with} \PYG{n+nb}{open}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}./README.md\PYGZdq{}}\PYG{p}{,} \PYG{n}{encoding} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}utf\PYGZhy{}8\PYGZsq{}}\PYG{p}{)} \PYG{k}{as} \PYG{n}{readme}\PYG{p}{:}
+    \PYG{n}{console}\PYG{o}{.}\PYG{n}{print}\PYG{p}{(}\PYG{n}{Markdown}\PYG{p}{(}\PYG{n}{readme}\PYG{o}{.}\PYG{n}{read}\PYG{p}{()))}
+  \PYG{k}{if} \PYG{p}{(}\PYG{n}{hadErrors}\PYG{p}{):}
+    \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}\PYGZdq{}}
+\PYG{l+s+s2}{      \PYGZhy{}\PYGZhy{}\PYGZgt{} You probably didn\PYGZsq{}t follow the instructions above, \PYGZlt{}\PYGZhy{}\PYGZhy{}}
+\PYG{l+s+s2}{      \PYGZhy{}\PYGZhy{}\PYGZgt{} so be sure to check them out                       \PYGZlt{}\PYGZhy{}\PYGZhy{}}
+\PYG{l+s+s2}{    \PYGZdq{}\PYGZdq{}\PYGZdq{}}\PYG{p}{)}
+
+\PYG{k}{if} \PYG{p}{(}\PYG{n}{hadErrors} \PYG{o+ow}{or} \PYG{l+s+s2}{\PYGZdq{}\PYGZhy{}\PYGZhy{}help\PYGZdq{}} \PYG{o+ow}{in} \PYG{n}{sys}\PYG{o}{.}\PYG{n}{argv} \PYG{o+ow}{or} \PYG{l+s+s2}{\PYGZdq{}\PYGZhy{}\PYGZhy{}h\PYGZdq{}} \PYG{o+ow}{in} \PYG{n}{sys}\PYG{o}{.}\PYG{n}{argv}\PYG{p}{):}
+  \PYG{n}{printHelp}\PYG{p}{()}
+\PYG{k}{elif} \PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}\PYGZhy{}\PYGZhy{}version\PYGZdq{}} \PYG{o+ow}{in} \PYG{n}{sys}\PYG{o}{.}\PYG{n}{argv} \PYG{o+ow}{or} \PYG{l+s+s2}{\PYGZdq{}\PYGZhy{}\PYGZhy{}v\PYGZdq{}} \PYG{o+ow}{in} \PYG{n}{sys}\PYG{o}{.}\PYG{n}{argv}\PYG{p}{):}
+  \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}Current version is }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{\PYGZus{}\PYGZus{}version\PYGZus{}\PYGZus{}}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+\PYG{k}{elif} \PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}\PYGZhy{}\PYGZhy{}server\PYGZdq{}} \PYG{o+ow}{in} \PYG{n}{sys}\PYG{o}{.}\PYG{n}{argv} \PYG{o+ow}{or} \PYG{l+s+s2}{\PYGZdq{}\PYGZhy{}\PYGZhy{}serve\PYGZdq{}} \PYG{o+ow}{in} \PYG{n}{sys}\PYG{o}{.}\PYG{n}{argv}\PYG{p}{):}
+  \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Starting the server...}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+  \PYG{n}{serverModule} \PYG{o}{=} \PYG{n}{import\PYGZus{}module}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}apps.SimplificationServer.main\PYGZdq{}}\PYG{p}{)}
+  \PYG{n}{app} \PYG{o}{=} \PYG{n+nb}{getattr}\PYG{p}{(}\PYG{n}{serverModule}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}startSimplificationServerApp\PYGZdq{}}\PYG{p}{)}
+  \PYG{n}{app}\PYG{p}{()}
+\PYG{k}{else}\PYG{p}{:}
+  \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Loading the transformer model...}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+  \PYG{n}{transformerModule} \PYG{o}{=} \PYG{n}{import\PYGZus{}module}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}apps.Transformer.main\PYGZdq{}}\PYG{p}{)}
+  \PYG{n}{app} \PYG{o}{=} \PYG{n+nb}{getattr}\PYG{p}{(}\PYG{n}{transformerModule}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}startTransformerApp\PYGZdq{}}\PYG{p}{)}
+  \PYG{n}{app}\PYG{p}{()}
+\end{Verbatim}

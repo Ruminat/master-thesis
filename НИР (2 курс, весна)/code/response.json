@@ -1,0 +1,20 @@
+{
+  "originalText": "お前はもう死んでいる",
+  "simplifiedText": "あなたはもう死んでいる",
+  "originalTextTokens": [
+    { "partOfSpeech": "代名詞", "token": "お前" },
+    { "partOfSpeech": "助詞-係助詞", "token": "は" },
+    { "partOfSpeech": "副詞", "token": "もう" },
+    { "partOfSpeech": "動詞-一般", "token": "死ん" },
+    { "partOfSpeech": "助詞-接続助詞", "token": "で" },
+    { "partOfSpeech": "動詞-非自立可能", "token": "いる" }
+  ],
+  "simplifiedTextTokens": [
+    { "partOfSpeech": "代名詞", "token": "あなた" },
+    { "partOfSpeech": "助詞-係助詞", "token": "は" },
+    { "partOfSpeech": "副詞", "token": "もう" },
+    { "partOfSpeech": "動詞-一般", "token": "死ん" },
+    { "partOfSpeech": "助詞-接続助詞", "token": "で" },
+    { "partOfSpeech": "動詞-非自立可能", "token": "いる" }
+  ]
+}

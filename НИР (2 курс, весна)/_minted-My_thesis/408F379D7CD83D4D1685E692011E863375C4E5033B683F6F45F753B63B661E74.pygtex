@@ -1,0 +1,106 @@
+\begin{Verbatim}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8\relax}]
+\PYG{k+kn}{from} \PYG{n+nn}{typing} \PYG{k+kn}{import} \PYG{n}{Iterable}\PYG{p}{,} \PYG{n}{List}
+
+\PYG{k+kn}{import} \PYG{n+nn}{torch}
+\PYG{k+kn}{from} \PYG{n+nn}{modules.Dataset.main} \PYG{k+kn}{import} \PYG{n}{MyDataset}
+\PYG{k+kn}{from} \PYG{n+nn}{modules.Language.definitions} \PYG{k+kn}{import} \PYG{p}{(}\PYG{n}{BOS\PYGZus{}IDX}\PYG{p}{,} \PYG{n}{EOS\PYGZus{}IDX}\PYG{p}{,}
+                                          \PYG{n}{LANGUAGE\PYGZus{}TO\PYGZus{}SPACY\PYGZus{}DATASET}\PYG{p}{,} \PYG{n}{PAD\PYGZus{}IDX}\PYG{p}{,}
+                                          \PYG{n}{SPECIAL\PYGZus{}SYMBOLS}\PYG{p}{,} \PYG{n}{UNK\PYGZus{}IDX}\PYG{p}{)}
+\PYG{k+kn}{from} \PYG{n+nn}{torch.nn.utils.rnn} \PYG{k+kn}{import} \PYG{n}{pad\PYGZus{}sequence}
+\PYG{k+kn}{from} \PYG{n+nn}{torchtext.data.utils} \PYG{k+kn}{import} \PYG{n}{get\PYGZus{}tokenizer}
+\PYG{k+kn}{from} \PYG{n+nn}{torchtext.vocab} \PYG{k+kn}{import} \PYG{n}{build\PYGZus{}vocab\PYGZus{}from\PYGZus{}iterator}
+
+
+\PYG{c+c1}{\PYGZsh{} Returns a Spacy tokenizer for the given language}
+\PYG{k}{def} \PYG{n+nf}{getSpacyTokenizer}\PYG{p}{(}\PYG{n}{language}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{):}
+  \PYG{k}{return} \PYG{n}{get\PYGZus{}tokenizer}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}spacy\PYGZdq{}}\PYG{p}{,} \PYG{n}{language}\PYG{o}{=}\PYG{n}{LANGUAGE\PYGZus{}TO\PYGZus{}SPACY\PYGZus{}DATASET}\PYG{p}{[}\PYG{n}{language}\PYG{p}{])}
+
+\PYG{c+c1}{\PYGZsh{} Create source and target language tokenizer. Make sure to install the dependencies.}
+\PYG{c+c1}{\PYGZsh{} pip install \PYGZhy{}U spacy}
+\PYG{c+c1}{\PYGZsh{} python \PYGZhy{}m spacy download ja\PYGZus{}core\PYGZus{}news\PYGZus{}lg}
+\PYG{k}{def} \PYG{n+nf}{getTokenTransform}\PYG{p}{(}\PYG{n}{srcLanguage}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{,} \PYG{n}{tgtLanguage}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{):}
+  \PYG{k}{return} \PYG{p}{\PYGZob{}}
+    \PYG{n}{srcLanguage}\PYG{p}{:} \PYG{n}{getSpacyTokenizer}\PYG{p}{(}\PYG{n}{srcLanguage}\PYG{p}{),}
+    \PYG{n}{tgtLanguage}\PYG{p}{:} \PYG{n}{getSpacyTokenizer}\PYG{p}{(}\PYG{n}{tgtLanguage}\PYG{p}{),}
+  \PYG{p}{\PYGZcb{}}
+
+\PYG{k}{def} \PYG{n+nf}{getVocabTransform}\PYG{p}{(}
+  \PYG{n}{srcLanguage}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{,}
+  \PYG{n}{tgtLanguage}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{,}
+  \PYG{n}{tokenTransform}\PYG{p}{:} \PYG{n+nb}{dict}\PYG{p}{,}
+  \PYG{n}{dataset}\PYG{p}{:} \PYG{n}{MyDataset}
+\PYG{p}{):}
+  \PYG{n}{vocabTransform} \PYG{o}{=} \PYG{p}{\PYGZob{}\PYGZcb{}}
+  \PYG{k}{for} \PYG{n}{language} \PYG{o+ow}{in} \PYG{p}{[}\PYG{n}{srcLanguage}\PYG{p}{,} \PYG{n}{tgtLanguage}\PYG{p}{]:}
+    \PYG{c+c1}{\PYGZsh{} Training data Iterator}
+    \PYG{n}{trainIter} \PYG{o}{=} \PYG{n}{dataset}\PYG{o}{.}\PYG{n}{getTrainSplit}\PYG{p}{()}
+    \PYG{c+c1}{\PYGZsh{} Create torchtext\PYGZdq{}s Vocab object}
+    \PYG{n}{vocabTransform}\PYG{p}{[}\PYG{n}{language}\PYG{p}{]} \PYG{o}{=} \PYG{n}{build\PYGZus{}vocab\PYGZus{}from\PYGZus{}iterator}\PYG{p}{(}
+      \PYG{n}{yieldTokens}\PYG{p}{(}\PYG{n}{tokenTransform}\PYG{p}{,} \PYG{n}{trainIter}\PYG{p}{,} \PYG{n}{language}\PYG{p}{),}
+      \PYG{n}{min\PYGZus{}freq}\PYG{o}{=}\PYG{l+m+mi}{1}\PYG{p}{,}
+      \PYG{n}{specials}\PYG{o}{=}\PYG{n}{SPECIAL\PYGZus{}SYMBOLS}\PYG{p}{,}
+      \PYG{n}{special\PYGZus{}first}\PYG{o}{=}\PYG{k+kc}{True}
+    \PYG{p}{)}
+
+  \PYG{c+c1}{\PYGZsh{} Set UNK\PYGZus{}IDX as the default index. This index is returned when the token is not found.}
+  \PYG{c+c1}{\PYGZsh{} If not set, it throws RuntimeError when the queried token is not found in the Vocabulary.}
+  \PYG{k}{for} \PYG{n}{language} \PYG{o+ow}{in} \PYG{p}{[}\PYG{n}{srcLanguage}\PYG{p}{,} \PYG{n}{tgtLanguage}\PYG{p}{]:}
+    \PYG{n}{vocabTransform}\PYG{p}{[}\PYG{n}{language}\PYG{p}{]}\PYG{o}{.}\PYG{n}{set\PYGZus{}default\PYGZus{}index}\PYG{p}{(}\PYG{n}{UNK\PYGZus{}IDX}\PYG{p}{)}
+
+  \PYG{k}{return} \PYG{n}{vocabTransform}
+
+\PYG{c+c1}{\PYGZsh{} Function to iterate through tokens}
+\PYG{k}{def} \PYG{n+nf}{yieldTokens}\PYG{p}{(}\PYG{n}{tokenTransform}\PYG{p}{:} \PYG{n+nb}{dict}\PYG{p}{,} \PYG{n}{dataIter}\PYG{p}{:} \PYG{n}{Iterable}\PYG{p}{,} \PYG{n}{language}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{List}\PYG{p}{[}\PYG{n+nb}{str}\PYG{p}{]:}
+  \PYG{n}{tokenizer} \PYG{o}{=} \PYG{n}{tokenTransform}\PYG{p}{[}\PYG{n}{language}\PYG{p}{]}
+  \PYG{k}{for} \PYG{n}{dataSample} \PYG{o+ow}{in} \PYG{n}{dataIter}\PYG{p}{:}
+    \PYG{n}{sample} \PYG{o}{=} \PYG{n}{dataSample}\PYG{p}{[}\PYG{n}{language}\PYG{p}{]}
+    \PYG{k}{yield} \PYG{n}{tokenizer}\PYG{p}{(}\PYG{n}{sample}\PYG{p}{)}
+
+\PYG{c+c1}{\PYGZsh{} src and tgt language text transforms to convert raw strings into tensors indices}
+\PYG{k}{def} \PYG{n+nf}{getTextTransform}\PYG{p}{(}
+  \PYG{n}{srcLanguage}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{,}
+  \PYG{n}{tgtLanguage}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{,}
+  \PYG{n}{tokenTransform}\PYG{p}{:} \PYG{n+nb}{dict}\PYG{p}{,}
+  \PYG{n}{vocabTransform}\PYG{p}{:} \PYG{n+nb}{dict}
+\PYG{p}{):}
+  \PYG{n}{textTransform} \PYG{o}{=} \PYG{p}{\PYGZob{}\PYGZcb{}}
+  \PYG{k}{for} \PYG{n}{language} \PYG{o+ow}{in} \PYG{p}{[}\PYG{n}{srcLanguage}\PYG{p}{,} \PYG{n}{tgtLanguage}\PYG{p}{]:}
+    \PYG{n}{textTransform}\PYG{p}{[}\PYG{n}{language}\PYG{p}{]} \PYG{o}{=} \PYG{n}{sequentialTransforms}\PYG{p}{(}
+      \PYG{n}{tokenTransform}\PYG{p}{[}\PYG{n}{language}\PYG{p}{],} \PYG{c+c1}{\PYGZsh{} Tokenization}
+      \PYG{n}{vocabTransform}\PYG{p}{[}\PYG{n}{language}\PYG{p}{],} \PYG{c+c1}{\PYGZsh{} Numericalization}
+      \PYG{n}{tensorTransform}
+    \PYG{p}{)} \PYG{c+c1}{\PYGZsh{} Add BOS/EOS and create tensor}
+  \PYG{k}{return} \PYG{n}{textTransform}
+
+\PYG{c+c1}{\PYGZsh{} helper function to club together sequential operations}
+\PYG{k}{def} \PYG{n+nf}{sequentialTransforms}\PYG{p}{(}\PYG{o}{*}\PYG{n}{transforms}\PYG{p}{):}
+  \PYG{k}{def} \PYG{n+nf}{func}\PYG{p}{(}\PYG{n}{textInput}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{):}
+    \PYG{k}{for} \PYG{n}{transform} \PYG{o+ow}{in} \PYG{n}{transforms}\PYG{p}{:}
+      \PYG{n}{textInput} \PYG{o}{=} \PYG{n}{transform}\PYG{p}{(}\PYG{n}{textInput}\PYG{p}{)}
+    \PYG{k}{return} \PYG{n}{textInput}
+  \PYG{k}{return} \PYG{n}{func}
+
+\PYG{c+c1}{\PYGZsh{} function to add BOS/EOS and create tensor for input sequence indices}
+\PYG{k}{def} \PYG{n+nf}{tensorTransform}\PYG{p}{(}\PYG{n}{tokenIds}\PYG{p}{:} \PYG{n}{List}\PYG{p}{[}\PYG{n+nb}{int}\PYG{p}{]):}
+  \PYG{k}{return} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{cat}\PYG{p}{(}
+    \PYG{p}{(}
+      \PYG{n}{torch}\PYG{o}{.}\PYG{n}{tensor}\PYG{p}{([}\PYG{n}{BOS\PYGZus{}IDX}\PYG{p}{]),}
+      \PYG{n}{torch}\PYG{o}{.}\PYG{n}{tensor}\PYG{p}{(}\PYG{n}{tokenIds}\PYG{p}{),}
+      \PYG{n}{torch}\PYG{o}{.}\PYG{n}{tensor}\PYG{p}{([}\PYG{n}{EOS\PYGZus{}IDX}\PYG{p}{])}
+    \PYG{p}{)}
+  \PYG{p}{)}
+
+\PYG{c+c1}{\PYGZsh{} function to collate data samples into batch tensors}
+\PYG{k}{def} \PYG{n+nf}{getCollateFn}\PYG{p}{(}\PYG{n}{srcLanguage}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{,} \PYG{n}{tgtLanguage}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{,} \PYG{n}{textTransform}\PYG{p}{:} \PYG{n+nb}{dict}\PYG{p}{):}
+  \PYG{k}{def} \PYG{n+nf}{collateFn}\PYG{p}{(}\PYG{n}{batch}\PYG{p}{):}
+    \PYG{n}{srcBatch}\PYG{p}{,} \PYG{n}{tgtBatch} \PYG{o}{=} \PYG{p}{[],} \PYG{p}{[]}
+    \PYG{k}{for} \PYG{n}{sus} \PYG{o+ow}{in} \PYG{n}{batch}\PYG{p}{:}
+      \PYG{n}{srcSample}\PYG{p}{,} \PYG{n}{tgtSample} \PYG{o}{=} \PYG{n}{sus}\PYG{p}{[}\PYG{n}{srcLanguage}\PYG{p}{],} \PYG{n}{sus}\PYG{p}{[}\PYG{n}{tgtLanguage}\PYG{p}{]}
+      \PYG{n}{srcBatch}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{textTransform}\PYG{p}{[}\PYG{n}{srcLanguage}\PYG{p}{](}\PYG{n}{srcSample}\PYG{o}{.}\PYG{n}{rstrip}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)))}
+      \PYG{n}{tgtBatch}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{textTransform}\PYG{p}{[}\PYG{n}{tgtLanguage}\PYG{p}{](}\PYG{n}{tgtSample}\PYG{o}{.}\PYG{n}{rstrip}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)))}
+
+    \PYG{n}{srcBatch} \PYG{o}{=} \PYG{n}{pad\PYGZus{}sequence}\PYG{p}{(}\PYG{n}{srcBatch}\PYG{p}{,} \PYG{n}{padding\PYGZus{}value}\PYG{o}{=}\PYG{n}{PAD\PYGZus{}IDX}\PYG{p}{)}
+    \PYG{n}{tgtBatch} \PYG{o}{=} \PYG{n}{pad\PYGZus{}sequence}\PYG{p}{(}\PYG{n}{tgtBatch}\PYG{p}{,} \PYG{n}{padding\PYGZus{}value}\PYG{o}{=}\PYG{n}{PAD\PYGZus{}IDX}\PYG{p}{)}
+    \PYG{k}{return} \PYG{n}{srcBatch}\PYG{p}{,} \PYG{n}{tgtBatch}
+  \PYG{k}{return} \PYG{n}{collateFn}
+\end{Verbatim}

@@ -1,0 +1,28 @@
+\begin{Verbatim}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8\relax}]
+\PYG{c+c1}{\PYGZsh{} Languages for src/tgt}
+\PYG{n}{JAPANESE\PYGZus{}SOURCE} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}original\PYGZus{}ja\PYGZdq{}}
+\PYG{n}{JAPANESE\PYGZus{}SIMPLIFIED} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}simplified\PYGZus{}ja\PYGZdq{}}
+
+\PYG{c+c1}{\PYGZsh{} Special symbols}
+\PYG{n}{UNK\PYGZus{}SYMBOL} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}\PYGZlt{}unk\PYGZgt{}\PYGZdq{}} \PYG{c+c1}{\PYGZsh{} unknown symbol}
+\PYG{n}{PAD\PYGZus{}SYMBOL} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}\PYGZlt{}pad\PYGZgt{}\PYGZdq{}} \PYG{c+c1}{\PYGZsh{} padding symbol}
+\PYG{n}{BOS\PYGZus{}SYMBOL} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}\PYGZlt{}bos\PYGZgt{}\PYGZdq{}} \PYG{c+c1}{\PYGZsh{} «Begginning Of a Sentence» symbol}
+\PYG{n}{EOS\PYGZus{}SYMBOL} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}\PYGZlt{}eos\PYGZgt{}\PYGZdq{}} \PYG{c+c1}{\PYGZsh{} «End Of a Sentence» symbol}
+
+\PYG{c+c1}{\PYGZsh{} Indicies for special symbols}
+\PYG{n}{UNK\PYGZus{}IDX} \PYG{o}{=} \PYG{l+m+mi}{0}
+\PYG{n}{PAD\PYGZus{}IDX} \PYG{o}{=} \PYG{l+m+mi}{1}
+\PYG{n}{BOS\PYGZus{}IDX} \PYG{o}{=} \PYG{l+m+mi}{2}
+\PYG{n}{EOS\PYGZus{}IDX} \PYG{o}{=} \PYG{l+m+mi}{3}
+\PYG{c+c1}{\PYGZsh{} Make sure the tokens are in order of their indices to properly insert them in vocab}
+\PYG{n}{SPECIAL\PYGZus{}SYMBOLS} \PYG{o}{=} \PYG{p}{[}\PYG{n}{UNK\PYGZus{}SYMBOL}\PYG{p}{,} \PYG{n}{PAD\PYGZus{}SYMBOL}\PYG{p}{,} \PYG{n}{BOS\PYGZus{}SYMBOL}\PYG{p}{,} \PYG{n}{EOS\PYGZus{}SYMBOL}\PYG{p}{]}
+
+\PYG{c+c1}{\PYGZsh{} Spacy dataset for Japanese}
+\PYG{n}{SPACY\PYGZus{}JP} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}ja\PYGZus{}core\PYGZus{}news\PYGZus{}lg\PYGZdq{}}
+
+\PYG{c+c1}{\PYGZsh{} Converts a language to a Spacy dataset}
+\PYG{n}{LANGUAGE\PYGZus{}TO\PYGZus{}SPACY\PYGZus{}DATASET} \PYG{o}{=} \PYG{p}{\PYGZob{}}
+  \PYG{n}{JAPANESE\PYGZus{}SOURCE}\PYG{p}{:} \PYG{n}{SPACY\PYGZus{}JP}\PYG{p}{,}
+  \PYG{n}{JAPANESE\PYGZus{}SIMPLIFIED}\PYG{p}{:} \PYG{n}{SPACY\PYGZus{}JP}
+\PYG{p}{\PYGZcb{}}
+\end{Verbatim}
