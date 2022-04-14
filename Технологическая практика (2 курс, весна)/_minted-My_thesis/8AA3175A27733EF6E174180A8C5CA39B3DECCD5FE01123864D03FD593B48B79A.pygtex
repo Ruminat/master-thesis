@@ -1,0 +1,16 @@
+\begin{Verbatim}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8\relax}]
+\PYG{k+kn}{from} \PYG{n+nn}{typing} \PYG{k+kn}{import} \PYG{n}{Optional}
+\PYG{k+kn}{from} \PYG{n+nn}{modules.Dataset.definitions} \PYG{k+kn}{import} \PYG{n}{TDatasetFn}
+
+
+\PYG{k}{class} \PYG{n+nc}{MyDataset}\PYG{p}{:}
+  \PYG{k}{def} \PYG{n+nf+fm}{\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}}\PYG{p}{(}
+    \PYG{n+nb+bp}{self}\PYG{p}{,}
+    \PYG{n}{getTrainSplit}\PYG{p}{:} \PYG{n}{TDatasetFn}\PYG{p}{,}
+    \PYG{n}{getValidationSplit}\PYG{p}{:} \PYG{n}{Optional}\PYG{p}{[}\PYG{n}{TDatasetFn}\PYG{p}{],}
+    \PYG{n}{getTestSplit}\PYG{p}{:} \PYG{n}{Optional}\PYG{p}{[}\PYG{n}{TDatasetFn}\PYG{p}{]}
+  \PYG{p}{):}
+    \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{getTrainSplit} \PYG{o}{=} \PYG{n}{getTrainSplit}
+    \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{getValidationSplit} \PYG{o}{=} \PYG{n}{getValidationSplit}
+    \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{getTestSplit} \PYG{o}{=} \PYG{n}{getTestSplit}
+\end{Verbatim}

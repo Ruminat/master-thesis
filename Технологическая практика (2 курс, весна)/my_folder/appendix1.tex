@@ -1,0 +1,56 @@
+\chapter{Исходный код}\label{appendix-code}							% Заголовок
+%\addcontentsline{toc}{chapter}{Second call for chapters to participate in the book Machine learning in analysis of biomedical and socio-economic data}	% Добавляем его в оглавление
+
+\newcommand{\sourceCodeFile}[2]{%
+	Файл \texttt{#1} (#2):
+	\inputminted[tabsize=2, mathescape, fontsize=\fontsize{10}{10}\selectfont]{python}{code/#1}%
+}
+
+\sourceCodeFile{main.py}{главный файл для запуска обучения модели или старта сервера}
+\sourceCodeFile{definitions.py}{основные определения и константы}
+\sourceCodeFile{utils.py}{утилиты для запуска модели}
+
+\sourceCodeFile{apps/SimplificationServer/main.py}{сервер на Falcon}
+\sourceCodeFile{modules/Parser/definitions.py}{MeCab-токен}
+\sourceCodeFile{modules/Parser/utils.py}{токенизация через MeCab}
+
+\sourceCodeFile{apps/Transformer/main.py}{запуск обучения/загрузки модели из сохраннёного файла из директории \texttt{/build}}
+
+\sourceCodeFile{modules/Seq2SeqTransformer/main.py}{модель sequence2sequence Transformer "--- финальная модель для упрощения}
+\sourceCodeFile{modules/Seq2SeqTransformer/utils.py}{утилиты для обучения модели упрощения}
+
+\sourceCodeFile{modules/PositionalEncoding/main.py}{модель positional encoding}
+
+\sourceCodeFile{modules/Embedding/main.py}{модель эмбеддингов}
+
+\sourceCodeFile{modules/Language/definitions.py}{определения языков}
+\sourceCodeFile{modules/Language/utils.py}{утилиты для обработки языков}
+
+\sourceCodeFile{modules/Dataset/main.py}{класс корпуса}
+\sourceCodeFile{modules/Dataset/definitions.py}{типы для корпусов}
+\sourceCodeFile{modules/Dataset/snowSimplifiedJapanese/main.py}{корпус упрощения предложений на японском языке SNOW (T15 и T23)}
+
+% \sourceCodeFile{modules/Metrics/bleu.py}{метрика BLEU}
+% \sourceCodeFile{modules/Metrics/sari.py}{метрика SARI}
+
+% \begin{minted}[tabsize=2, mathescape, linenos, xleftmargin=20pt, fontsize=\scriptsize]{python}
+% def scaledDotProductAttention(
+%   query: Tensor,
+%   key: Tensor,
+%   value: Tensor,
+%   mask: Optional[Tensor] = None
+% ) -> Tensor:
+%   # Считаем scale, на который будем делить
+%   scale = query.size(-1) ** 0.5
+%   # Перемножаем матрицы query и key, делим их на scale
+%   temp = query.bmm(key.transpose(1, 2)) / scale
+
+%   # Применяем маску, если она есть
+%   if (mask is not None):
+%     temp += mask
+
+%   # Применяем softmax к измерению embedding'ов
+%   softmax = f.softmax(temp, dim=-1)
+%   # Перемножаем softmax с матрицей value
+%   return softmax.bmm(value)
+% \end{minted}

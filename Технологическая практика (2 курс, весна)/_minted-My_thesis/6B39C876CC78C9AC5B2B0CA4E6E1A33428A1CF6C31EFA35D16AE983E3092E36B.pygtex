@@ -1,0 +1,117 @@
+\begin{Verbatim}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8\relax}]
+\PYG{k+kn}{from} \PYG{n+nn}{typing} \PYG{k+kn}{import} \PYG{n}{List}
+\PYG{k+kn}{import} \PYG{n+nn}{torch}
+\PYG{k+kn}{import} \PYG{n+nn}{torch.nn} \PYG{k}{as} \PYG{n+nn}{nn}
+\PYG{k+kn}{from} \PYG{n+nn}{definitions} \PYG{k+kn}{import} \PYG{p}{(}\PYG{n}{SRC\PYGZus{}LANGUAGE}\PYG{p}{,} \PYG{n}{TGT\PYGZus{}LANGUAGE}\PYG{p}{,} \PYG{n}{textTransform}\PYG{p}{,}
+                         \PYG{n}{vocabTransform}\PYG{p}{)}
+\PYG{k+kn}{from} \PYG{n+nn}{modules.Embedding.main} \PYG{k+kn}{import} \PYG{n}{TokenEmbedding}
+\PYG{k+kn}{from} \PYG{n+nn}{modules.Language.definitions} \PYG{k+kn}{import} \PYG{n}{BOS\PYGZus{}IDX}\PYG{p}{,} \PYG{n}{BOS\PYGZus{}SYMBOL}\PYG{p}{,} \PYG{n}{EOS\PYGZus{}SYMBOL}
+\PYG{k+kn}{from} \PYG{n+nn}{modules.PositionalEncoding.main} \PYG{k+kn}{import} \PYG{n}{PositionalEncoding}
+\PYG{k+kn}{from} \PYG{n+nn}{modules.Seq2SeqTransformer.utils} \PYG{k+kn}{import} \PYG{n}{greedyDecode}
+\PYG{k+kn}{from} \PYG{n+nn}{torch} \PYG{k+kn}{import} \PYG{n}{Tensor}
+
+\PYG{k+kn}{from} \PYG{n+nn}{torch.nn} \PYG{k+kn}{import} \PYG{n}{Transformer}
+
+
+\PYG{c+c1}{\PYGZsh{} The final model to be trained}
+\PYG{k}{class} \PYG{n+nc}{Seq2SeqTransformer}\PYG{p}{(}\PYG{n}{nn}\PYG{o}{.}\PYG{n}{Module}\PYG{p}{):}
+  \PYG{k}{def} \PYG{n+nf+fm}{\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}}\PYG{p}{(}
+    \PYG{n+nb+bp}{self}\PYG{p}{,}
+    \PYG{n}{batchSize}\PYG{p}{:} \PYG{n+nb}{int}\PYG{p}{,}
+    \PYG{n}{srcLanguage}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{,}
+    \PYG{n}{tgtLanguage}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{,}
+    \PYG{n}{num\PYGZus{}encoder\PYGZus{}layers}\PYG{p}{:} \PYG{n+nb}{int}\PYG{p}{,}
+    \PYG{n}{num\PYGZus{}decoder\PYGZus{}layers}\PYG{p}{:} \PYG{n+nb}{int}\PYG{p}{,}
+    \PYG{n}{embeddingSize}\PYG{p}{:} \PYG{n+nb}{int}\PYG{p}{,}
+    \PYG{n}{nhead}\PYG{p}{:} \PYG{n+nb}{int}\PYG{p}{,}
+    \PYG{n}{srcVocabSize}\PYG{p}{:} \PYG{n+nb}{int}\PYG{p}{,}
+    \PYG{n}{tgtVocabSize}\PYG{p}{:} \PYG{n+nb}{int}\PYG{p}{,}
+    \PYG{n}{dim\PYGZus{}feedforward}\PYG{p}{:} \PYG{n+nb}{int} \PYG{o}{=} \PYG{l+m+mi}{512}\PYG{p}{,}
+    \PYG{n}{dropout}\PYG{p}{:} \PYG{n+nb}{float} \PYG{o}{=} \PYG{l+m+mf}{0.1}\PYG{p}{,}
+    \PYG{n}{device}\PYG{p}{:} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{device} \PYG{o}{=} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{device}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}cpu\PYGZdq{}}\PYG{p}{)}
+  \PYG{p}{):}
+    \PYG{n+nb}{super}\PYG{p}{(}\PYG{n}{Seq2SeqTransformer}\PYG{p}{,} \PYG{n+nb+bp}{self}\PYG{p}{)}\PYG{o}{.}\PYG{n+nf+fm}{\PYGZus{}\PYGZus{}init\PYGZus{}\PYGZus{}}\PYG{p}{()}
+    \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{transformer} \PYG{o}{=} \PYG{n}{Transformer}\PYG{p}{(}
+      \PYG{n}{d\PYGZus{}model}\PYG{o}{=}\PYG{n}{embeddingSize}\PYG{p}{,}
+      \PYG{n}{nhead}\PYG{o}{=}\PYG{n}{nhead}\PYG{p}{,}
+      \PYG{n}{num\PYGZus{}encoder\PYGZus{}layers}\PYG{o}{=}\PYG{n}{num\PYGZus{}encoder\PYGZus{}layers}\PYG{p}{,}
+      \PYG{n}{num\PYGZus{}decoder\PYGZus{}layers}\PYG{o}{=}\PYG{n}{num\PYGZus{}decoder\PYGZus{}layers}\PYG{p}{,}
+      \PYG{n}{dim\PYGZus{}feedforward}\PYG{o}{=}\PYG{n}{dim\PYGZus{}feedforward}\PYG{p}{,}
+      \PYG{n}{dropout}\PYG{o}{=}\PYG{n}{dropout}
+    \PYG{p}{)}
+    \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{generator} \PYG{o}{=} \PYG{n}{nn}\PYG{o}{.}\PYG{n}{Linear}\PYG{p}{(}\PYG{n}{embeddingSize}\PYG{p}{,} \PYG{n}{tgtVocabSize}\PYG{p}{)}
+    \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{src\PYGZus{}tok\PYGZus{}emb} \PYG{o}{=} \PYG{n}{TokenEmbedding}\PYG{p}{(}\PYG{n}{srcVocabSize}\PYG{p}{,} \PYG{n}{embeddingSize}\PYG{p}{)}
+    \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{tgt\PYGZus{}tok\PYGZus{}emb} \PYG{o}{=} \PYG{n}{TokenEmbedding}\PYG{p}{(}\PYG{n}{tgtVocabSize}\PYG{p}{,} \PYG{n}{embeddingSize}\PYG{p}{)}
+    \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{positional\PYGZus{}encoding} \PYG{o}{=} \PYG{n}{PositionalEncoding}\PYG{p}{(}\PYG{n}{embeddingSize}\PYG{p}{,} \PYG{n}{dropout}\PYG{o}{=}\PYG{n}{dropout}\PYG{p}{)}
+    \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{batchSize} \PYG{o}{=} \PYG{n}{batchSize}
+    \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{srcLanguage} \PYG{o}{=} \PYG{n}{srcLanguage}
+    \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{tgtLanguage} \PYG{o}{=} \PYG{n}{tgtLanguage}
+    \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{device} \PYG{o}{=} \PYG{n}{device}
+
+  \PYG{k}{def} \PYG{n+nf}{forward}\PYG{p}{(}
+    \PYG{n+nb+bp}{self}\PYG{p}{,}
+    \PYG{n}{src}\PYG{p}{:} \PYG{n}{Tensor}\PYG{p}{,}
+    \PYG{n}{trg}\PYG{p}{:} \PYG{n}{Tensor}\PYG{p}{,}
+    \PYG{n}{srcMask}\PYG{p}{:} \PYG{n}{Tensor}\PYG{p}{,}
+    \PYG{n}{tgtMask}\PYG{p}{:} \PYG{n}{Tensor}\PYG{p}{,}
+    \PYG{n}{srcPaddingMask}\PYG{p}{:} \PYG{n}{Tensor}\PYG{p}{,}
+    \PYG{n}{tgtPaddingMask}\PYG{p}{:} \PYG{n}{Tensor}\PYG{p}{,}
+    \PYG{n}{memory\PYGZus{}key\PYGZus{}padding\PYGZus{}mask}\PYG{p}{:} \PYG{n}{Tensor}
+  \PYG{p}{):}
+    \PYG{n}{srcEmbedding} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{positional\PYGZus{}encoding}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{src\PYGZus{}tok\PYGZus{}emb}\PYG{p}{(}\PYG{n}{src}\PYG{p}{))}
+    \PYG{n}{tgtEmbedding} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{positional\PYGZus{}encoding}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{tgt\PYGZus{}tok\PYGZus{}emb}\PYG{p}{(}\PYG{n}{trg}\PYG{p}{))}
+    \PYG{n}{outs} \PYG{o}{=} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{transformer}\PYG{p}{(}
+      \PYG{n}{srcEmbedding}\PYG{p}{,}
+      \PYG{n}{tgtEmbedding}\PYG{p}{,}
+      \PYG{n}{srcMask}\PYG{p}{,}
+      \PYG{n}{tgtMask}\PYG{p}{,}
+      \PYG{k+kc}{None}\PYG{p}{,}
+      \PYG{n}{srcPaddingMask}\PYG{p}{,}
+      \PYG{n}{tgtPaddingMask}\PYG{p}{,}
+      \PYG{n}{memory\PYGZus{}key\PYGZus{}padding\PYGZus{}mask}
+    \PYG{p}{)}
+    \PYG{k}{return} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{generator}\PYG{p}{(}\PYG{n}{outs}\PYG{p}{)}
+
+  \PYG{k}{def} \PYG{n+nf}{encode}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{src}\PYG{p}{:} \PYG{n}{Tensor}\PYG{p}{,} \PYG{n}{srcMask}\PYG{p}{:} \PYG{n}{Tensor}\PYG{p}{):}
+    \PYG{k}{return} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{transformer}\PYG{o}{.}\PYG{n}{encoder}\PYG{p}{(}
+      \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{positional\PYGZus{}encoding}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{src\PYGZus{}tok\PYGZus{}emb}\PYG{p}{(}\PYG{n}{src}\PYG{p}{)),}
+      \PYG{n}{srcMask}
+    \PYG{p}{)}
+
+  \PYG{k}{def} \PYG{n+nf}{decode}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{tgt}\PYG{p}{:} \PYG{n}{Tensor}\PYG{p}{,} \PYG{n}{memory}\PYG{p}{:} \PYG{n}{Tensor}\PYG{p}{,} \PYG{n}{tgtMask}\PYG{p}{:} \PYG{n}{Tensor}\PYG{p}{):}
+    \PYG{k}{return} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{transformer}\PYG{o}{.}\PYG{n}{decoder}\PYG{p}{(}
+      \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{positional\PYGZus{}encoding}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{tgt\PYGZus{}tok\PYGZus{}emb}\PYG{p}{(}\PYG{n}{tgt}\PYG{p}{)),}
+      \PYG{n}{memory}\PYG{p}{,}
+      \PYG{n}{tgtMask}
+    \PYG{p}{)}
+
+  \PYG{c+c1}{\PYGZsh{} Method for translating from srcLanguage to tgtLangauge (Japanese \PYGZhy{}\PYGZgt{} simplified Japanese)}
+  \PYG{k}{def} \PYG{n+nf}{translate}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{srcSentence}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{):}
+    \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{eval}\PYG{p}{()}
+    \PYG{n}{src} \PYG{o}{=} \PYG{n}{textTransform}\PYG{p}{[}\PYG{n}{SRC\PYGZus{}LANGUAGE}\PYG{p}{](}\PYG{n}{srcSentence}\PYG{p}{)}\PYG{o}{.}\PYG{n}{view}\PYG{p}{(}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{l+m+mi}{1}\PYG{p}{)}
+    \PYG{n}{num\PYGZus{}tokens} \PYG{o}{=} \PYG{n}{src}\PYG{o}{.}\PYG{n}{shape}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}
+    \PYG{n}{srcMask} \PYG{o}{=} \PYG{p}{(}\PYG{n}{torch}\PYG{o}{.}\PYG{n}{zeros}\PYG{p}{(}\PYG{n}{num\PYGZus{}tokens}\PYG{p}{,} \PYG{n}{num\PYGZus{}tokens}\PYG{p}{))}\PYG{o}{.}\PYG{n}{type}\PYG{p}{(}\PYG{n}{torch}\PYG{o}{.}\PYG{n}{bool}\PYG{p}{)}
+    \PYG{n}{tgtTokens} \PYG{o}{=} \PYG{n}{greedyDecode}\PYG{p}{(}
+      \PYG{n+nb+bp}{self}\PYG{p}{,}
+      \PYG{n}{src}\PYG{p}{,}
+      \PYG{n}{srcMask}\PYG{p}{,}
+      \PYG{n}{maxLen}\PYG{o}{=}\PYG{n}{num\PYGZus{}tokens} \PYG{o}{+} \PYG{l+m+mi}{5}\PYG{p}{,}
+      \PYG{n}{startSymbol}\PYG{o}{=}\PYG{n}{BOS\PYGZus{}IDX}\PYG{p}{,}
+      \PYG{n}{device}\PYG{o}{=}\PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{device}
+    \PYG{p}{)}\PYG{o}{.}\PYG{n}{flatten}\PYG{p}{()}
+    \PYG{n}{tokens} \PYG{o}{=} \PYG{n}{vocabTransform}\PYG{p}{[}\PYG{n}{TGT\PYGZus{}LANGUAGE}\PYG{p}{]}\PYG{o}{.}\PYG{n}{lookup\PYGZus{}tokens}\PYG{p}{(}\PYG{n+nb}{list}\PYG{p}{(}\PYG{n}{tgtTokens}\PYG{o}{.}\PYG{n}{cpu}\PYG{p}{()}\PYG{o}{.}\PYG{n}{numpy}\PYG{p}{()))}
+
+    \PYG{k}{return} \PYG{n+nb+bp}{self}\PYG{o}{.}\PYG{n}{tokensToText}\PYG{p}{(}\PYG{n}{tokens}\PYG{p}{)}
+
+  \PYG{c+c1}{\PYGZsh{} Turns a list of tokens into a single string}
+  \PYG{c+c1}{\PYGZsh{} [\PYGZdq{}what\PYGZdq{}, \PYGZdq{}is\PYGZdq{}, \PYGZdq{}love\PYGZdq{}] \PYGZhy{}\PYGZgt{} \PYGZdq{}what is love\PYGZdq{}}
+  \PYG{k}{def} \PYG{n+nf}{tokensToText}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{,} \PYG{n}{tokens}\PYG{p}{:} \PYG{n}{List}\PYG{p}{[}\PYG{n+nb}{str}\PYG{p}{])} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n+nb}{str}\PYG{p}{:}
+    \PYG{n}{result} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}}
+    \PYG{k}{for} \PYG{n}{token} \PYG{o+ow}{in} \PYG{n}{tokens}\PYG{p}{:}
+      \PYG{k}{if} \PYG{n}{token} \PYG{o}{==} \PYG{n}{BOS\PYGZus{}SYMBOL} \PYG{o+ow}{or} \PYG{n}{token} \PYG{o}{==} \PYG{n}{EOS\PYGZus{}SYMBOL}\PYG{p}{:}
+        \PYG{k}{continue}
+      \PYG{k}{if} \PYG{n}{token} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}。\PYGZdq{}}\PYG{p}{:}
+        \PYG{k}{break}
+      \PYG{n}{result} \PYG{o}{+=} \PYG{n}{token}
+    \PYG{k}{return} \PYG{n}{result}
+\end{Verbatim}

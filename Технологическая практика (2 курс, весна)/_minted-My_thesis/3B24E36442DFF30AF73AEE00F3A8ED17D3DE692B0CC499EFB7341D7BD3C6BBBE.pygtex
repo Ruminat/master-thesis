@@ -1,0 +1,58 @@
+\begin{Verbatim}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8\relax}]
+\PYG{k+kn}{import} \PYG{n+nn}{torch}
+
+\PYG{k+kn}{from} \PYG{n+nn}{modules.Dataset.snowSimplifiedJapanese.main} \PYG{k+kn}{import} \PYGZbs{}
+    \PYG{n}{snowSimplifiedJapaneseDataset}
+\PYG{k+kn}{from} \PYG{n+nn}{modules.Language.definitions} \PYG{k+kn}{import} \PYG{n}{JAPANESE\PYGZus{}SIMPLIFIED}\PYG{p}{,} \PYG{n}{JAPANESE\PYGZus{}SOURCE}
+\PYG{k+kn}{from} \PYG{n+nn}{modules.Language.utils} \PYG{k+kn}{import} \PYG{p}{(}\PYG{n}{getTextTransform}\PYG{p}{,} \PYG{n}{getTokenTransform}\PYG{p}{,}
+                                    \PYG{n}{getVocabTransform}\PYG{p}{)}
+
+
+\PYG{c+c1}{\PYGZsh{} You can put a trained model into MODELS\PYGZus{}DIR with file name DEFAULT\PYGZus{}MODEL\PYGZus{}FILENAME}
+\PYG{c+c1}{\PYGZsh{} so you won\PYGZsq{}t have to train it each time}
+\PYG{n}{MODELS\PYGZus{}DIR} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}./build\PYGZdq{}}
+\PYG{n}{DEFAULT\PYGZus{}MODEL\PYGZus{}FILENAME} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}transformer.pt\PYGZdq{}}
+
+\PYG{c+c1}{\PYGZsh{} Source and target languages for translation (Japanese and simplified Japanese)}
+\PYG{n}{SRC\PYGZus{}LANGUAGE} \PYG{o}{=} \PYG{n}{JAPANESE\PYGZus{}SOURCE}
+\PYG{n}{TGT\PYGZus{}LANGUAGE} \PYG{o}{=} \PYG{n}{JAPANESE\PYGZus{}SIMPLIFIED}
+
+\PYG{c+c1}{\PYGZsh{} The dataset we\PYGZsq{}re gonna train the model on}
+\PYG{n}{DATASET} \PYG{o}{=} \PYG{n}{snowSimplifiedJapaneseDataset}
+
+\PYG{c+c1}{\PYGZsh{} Transforms for the source sentence (text \PYGZhy{}\PYGZgt{} embeddings)}
+\PYG{n}{tokenTransform} \PYG{o}{=} \PYG{n}{getTokenTransform}\PYG{p}{(}\PYG{n}{SRC\PYGZus{}LANGUAGE}\PYG{p}{,} \PYG{n}{TGT\PYGZus{}LANGUAGE}\PYG{p}{)}
+\PYG{n}{vocabTransform} \PYG{o}{=} \PYG{n}{getVocabTransform}\PYG{p}{(}\PYG{n}{SRC\PYGZus{}LANGUAGE}\PYG{p}{,} \PYG{n}{TGT\PYGZus{}LANGUAGE}\PYG{p}{,} \PYG{n}{tokenTransform}\PYG{p}{,} \PYG{n}{DATASET}\PYG{p}{)}
+\PYG{n}{textTransform} \PYG{o}{=} \PYG{n}{getTextTransform}\PYG{p}{(}\PYG{n}{SRC\PYGZus{}LANGUAGE}\PYG{p}{,} \PYG{n}{TGT\PYGZus{}LANGUAGE}\PYG{p}{,} \PYG{n}{tokenTransform}\PYG{p}{,} \PYG{n}{vocabTransform}\PYG{p}{)}
+
+\PYG{c+c1}{\PYGZsh{} The seed for PyTorch}
+\PYG{n}{SEED} \PYG{o}{=} \PYG{l+m+mi}{0}
+\PYG{c+c1}{\PYGZsh{} Batch size for learning}
+\PYG{n}{BATCH\PYGZus{}SIZE} \PYG{o}{=} \PYG{l+m+mi}{64}
+
+\PYG{c+c1}{\PYGZsh{} Optimizer parameters}
+\PYG{n}{WEIGHT\PYGZus{}DECAY} \PYG{o}{=} \PYG{l+m+mi}{0}
+\PYG{n}{LEARNING\PYGZus{}RATE} \PYG{o}{=} \PYG{l+m+mf}{0.0001}
+\PYG{n}{BETAS} \PYG{o}{=} \PYG{p}{(}\PYG{l+m+mf}{0.9}\PYG{p}{,} \PYG{l+m+mf}{0.98}\PYG{p}{)}
+\PYG{n}{EPSILON} \PYG{o}{=} \PYG{l+m+mf}{1e\PYGZhy{}9}
+
+\PYG{c+c1}{\PYGZsh{} The number of training epochs}
+\PYG{n}{NUM\PYGZus{}EPOCHS} \PYG{o}{=} \PYG{l+m+mi}{30}
+\PYG{c+c1}{\PYGZsh{} The size of the embedding vectors}
+\PYG{n}{EMB\PYGZus{}SIZE} \PYG{o}{=} \PYG{l+m+mi}{512}
+\PYG{c+c1}{\PYGZsh{} The number of attention heads}
+\PYG{n}{NHEAD} \PYG{o}{=} \PYG{l+m+mi}{8}
+\PYG{c+c1}{\PYGZsh{} Size of the feed forward layer}
+\PYG{n}{DIM\PYGZus{}FEEDFORWARD} \PYG{o}{=} \PYG{l+m+mi}{512}
+\PYG{c+c1}{\PYGZsh{} The number of encoder/decoder layers}
+\PYG{n}{NUM\PYGZus{}ENCODER\PYGZus{}LAYERS} \PYG{o}{=} \PYG{l+m+mi}{6}
+\PYG{n}{NUM\PYGZus{}DECODER\PYGZus{}LAYERS} \PYG{o}{=} \PYG{n}{NUM\PYGZus{}ENCODER\PYGZus{}LAYERS}
+
+\PYG{c+c1}{\PYGZsh{} Supplementary constants}
+\PYG{n}{SRC\PYGZus{}VOCAB\PYGZus{}SIZE} \PYG{o}{=} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{vocabTransform}\PYG{p}{[}\PYG{n}{SRC\PYGZus{}LANGUAGE}\PYG{p}{])}
+\PYG{n}{TGT\PYGZus{}VOCAB\PYGZus{}SIZE} \PYG{o}{=} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{vocabTransform}\PYG{p}{[}\PYG{n}{TGT\PYGZus{}LANGUAGE}\PYG{p}{])}
+\PYG{n}{DEVICE\PYGZus{}CPU} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}cpu\PYGZdq{}}
+\PYG{n}{DEVICE\PYGZus{}GPU} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}cuda\PYGZdq{}}
+\PYG{c+c1}{\PYGZsh{} Which device to use for training/evaluation (uses CUDA when available, otherwise CPU)}
+\PYG{n}{DEVICE} \PYG{o}{=} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{device}\PYG{p}{(}\PYG{n}{DEVICE\PYGZus{}GPU} \PYG{k}{if} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{cuda}\PYG{o}{.}\PYG{n}{is\PYGZus{}available}\PYG{p}{()} \PYG{k}{else} \PYG{n}{DEVICE\PYGZus{}CPU}\PYG{p}{)}
+\end{Verbatim}

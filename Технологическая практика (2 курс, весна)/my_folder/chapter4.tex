@@ -1,0 +1,42 @@
+%!TeX root = ../My_thesis.tex
+
+
+% .---|||___|||--- C H A P T E R ---|||___|||---. %
+\chapter{Результаты и улучшение модели}
+% .---|||___|||--- C H A P T E R ---|||___|||---. %
+
+
+% .---|||___|||--- S E C T I O N ---|||___|||---. %
+\section{Варианты модификации модели}
+% .---|||___|||--- S E C T I O N ---|||___|||---. %
+
+
+Берём да улучшаем!
+
+
+% .---|||___|||--- S E C T I O N ---|||___|||---. %
+\section{Результаты}
+% .---|||___|||--- S E C T I O N ---|||___|||---. %
+
+
+Вот такие результаты
+
+\begin{table}[H]% Пример оформления таблицы
+  \centering\small
+  \caption{Метрики полученных моделей}
+  \label{metrics}
+    \begin{tabular}{|l|l|l|}
+      \hline
+      \textbf{Модель} & \textbf{BLEU} & \textbf{SARI} \\ \hline
+      Transformer & 45{,}63 & 63{,}17 \\ \hline
+      Pretrained Transformer & 50{,}78 & 67{,}33 \\ \hline
+      Pretrained Encoder & 46{,}87 & 64{,}27 \\ \hline
+    \end{tabular}
+    \normalsize
+\end{table}
+
+\begin{itemize}%
+  \item Transformer "--- изначальная модель;
+  \item Pretrained Transformer "--- предобученная модель, которую дообучаем, замедляя обучение encoder'а;
+  \item Pretrained Encoder "--- изначальная модель, в которой заменяем encoder на предобученный, замедляя его обучение.
+\end{itemize}
