@@ -1,0 +1,16 @@
+\begin{Verbatim}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8\relax}]
+\PYG{n}{encoder} \PYG{o}{=} \PYG{p}{[]}
+\PYG{n}{rest} \PYG{o}{=} \PYG{p}{[]}
+\PYG{k}{for} \PYG{n}{name}\PYG{p}{,} \PYG{n}{param} \PYG{o+ow}{in} \PYG{n}{transformer}\PYG{o}{.}\PYG{n}{named\PYGZus{}parameters}\PYG{p}{():}
+  \PYG{k}{if} \PYG{l+s+s2}{\PYGZdq{}encoder\PYGZdq{}} \PYG{o+ow}{in} \PYG{n}{name}\PYG{p}{:}
+    \PYG{n}{encoder}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{param}\PYG{p}{)}
+  \PYG{k}{else}\PYG{p}{:}
+    \PYG{n}{rest}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{n}{param}\PYG{p}{)}
+
+\PYG{n}{optimizer} \PYG{o}{=} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{optim}\PYG{o}{.}\PYG{n}{Adam}\PYG{p}{(}
+  \PYG{p}{[\PYGZob{}}\PYG{l+s+s1}{\PYGZsq{}params\PYGZsq{}}\PYG{p}{:} \PYG{n}{encoder}\PYG{p}{\PYGZcb{},} \PYG{p}{\PYGZob{}}\PYG{l+s+s1}{\PYGZsq{}params\PYGZsq{}}\PYG{p}{:} \PYG{n}{rest}\PYG{p}{\PYGZcb{}],}
+  \PYG{c+c1}{\PYGZsh{} ... параметры обучения}
+\PYG{p}{)}
+\PYG{c+c1}{\PYGZsh{} здесь мы уменьшаем learning rate у encoder\PYGZsq{}а в 5 раз}
+\PYG{n}{optimizer}\PYG{o}{.}\PYG{n}{param\PYGZus{}groups}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{][}\PYG{l+s+s1}{\PYGZsq{}lr\PYGZsq{}}\PYG{p}{]} \PYG{o}{=} \PYG{n}{LEARNING\PYGZus{}RATE} \PYG{o}{/} \PYG{l+m+mi}{5}
+\end{Verbatim}
