@@ -1,6 +1,17 @@
-# Languages for src/tgt
-JAPANESE_SOURCE = "original_ja"
-JAPANESE_SIMPLIFIED = "simplified_ja"
+from typing import Callable, List
+
+from torch import Tensor
+
+# Helper types
+TToken = str
+TTokensSentence = List[TToken]
+TTokensSentences = List[TTokensSentence]
+
+TSentence = str
+TSentences = List[TSentence]
+
+TTokenizer = Callable[[TSentence], TTokensSentence]
+TTextTransformer = Callable[[TSentence], Tensor]
 
 # Special symbols
 UNK_SYMBOL = "<unk>" # unknown symbol
@@ -18,9 +29,3 @@ SPECIAL_SYMBOLS = [UNK_SYMBOL, PAD_SYMBOL, BOS_SYMBOL, EOS_SYMBOL]
 
 # Spacy dataset for Japanese
 SPACY_JP = "ja_core_news_lg"
-
-# Converts a language to a Spacy dataset
-LANGUAGE_TO_SPACY_DATASET = {
-  JAPANESE_SOURCE: SPACY_JP,
-  JAPANESE_SIMPLIFIED: SPACY_JP
-}

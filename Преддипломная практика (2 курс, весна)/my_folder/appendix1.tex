@@ -3,7 +3,7 @@
 
 \newcommand{\sourceCodeFile}[2]{%
 	Файл \texttt{#1} (#2):
-	\inputminted[tabsize=2, mathescape, fontsize=\fontsize{10}{10}\selectfont]{python}{code/#1}%
+	\inputminted[tabsize=2, lineos, breaklines, mathescape, fontsize=\fontsize{12}{12}\selectfont]{python}{code/#1}%
 }
 
 \sourceCodeFile{main.py}{главный файл для запуска обучения модели или старта сервера}
@@ -29,6 +29,12 @@
 \sourceCodeFile{modules/Dataset/main.py}{класс корпуса}
 \sourceCodeFile{modules/Dataset/definitions.py}{типы для корпусов}
 \sourceCodeFile{modules/Dataset/snowSimplifiedJapanese/main.py}{корпус упрощения предложений на японском языке SNOW (T15 и T23)}
+\sourceCodeFile{modules/Dataset/wikipediaJa/main.py}{корпус предложений из википедии}
+
+\sourceCodeFile{modules/Metrics/definitions.py}{дата-класс для данных, необходимых для сбора метрик}
+\sourceCodeFile{modules/Metrics/utils.py}{утилиты для сбора данных для метрик}
+\sourceCodeFile{modules/Metrics/LanguageMetrics/bleu.py}{вычисление метрики BLEU}
+\sourceCodeFile{modules/Metrics/LanguageMetrics/sari.py}{вычисление метрики SARI}
 
 % \sourceCodeFile{modules/Metrics/bleu.py}{метрика BLEU}
 % \sourceCodeFile{modules/Metrics/sari.py}{метрика SARI}

@@ -1,0 +1,40 @@
+\begin{Verbatim}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8\relax}]
+\PYG{k+kn}{import} \PYG{n+nn}{sys}
+
+\PYG{k+kn}{from} \PYG{n+nn}{definitions} \PYG{k+kn}{import} \PYG{n}{DATASET}
+\PYG{k+kn}{from} \PYG{n+nn}{modules.Language.definitions} \PYG{k+kn}{import} \PYG{n}{JAPANESE\PYGZus{}SIMPLIFIED}\PYG{p}{,} \PYG{n}{JAPANESE\PYGZus{}SOURCE}
+\PYG{k+kn}{from} \PYG{n+nn}{modules.Metrics.bleu} \PYG{k+kn}{import} \PYG{n}{getBleuScore}
+\PYG{k+kn}{from} \PYG{n+nn}{utils} \PYG{k+kn}{import} \PYG{p}{(}\PYG{n}{getTrainedTransformer}\PYG{p}{,} \PYG{n}{initiatePyTorch}\PYG{p}{,} \PYG{n}{loadTransformer}\PYG{p}{,}
+                   \PYG{n}{prettyPrintTranslation}\PYG{p}{)}
+
+
+\PYG{k}{def} \PYG{n+nf}{startTransformerApp}\PYG{p}{():}
+  \PYG{n}{initiatePyTorch}\PYG{p}{()}
+
+  \PYG{k}{if} \PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}\PYGZhy{}\PYGZhy{}train\PYGZdq{}} \PYG{o+ow}{in} \PYG{n}{sys}\PYG{o}{.}\PYG{n}{argv}\PYG{p}{):}
+    \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s2}{\PYGZhy{}\PYGZhy{} TRAIN MODE \PYGZhy{}\PYGZhy{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+    \PYG{n}{transformer} \PYG{o}{=} \PYG{n}{getTrainedTransformer}\PYG{p}{()}
+  \PYG{k}{elif} \PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}\PYGZhy{}\PYGZhy{}load\PYGZdq{}} \PYG{o+ow}{in} \PYG{n}{sys}\PYG{o}{.}\PYG{n}{argv}\PYG{p}{):}
+    \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s2}{\PYGZhy{}\PYGZhy{} LOADING THE SAVED MODEL \PYGZhy{}\PYGZhy{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+    \PYG{n}{transformer} \PYG{o}{=} \PYG{n}{loadTransformer}\PYG{p}{()}
+  \PYG{k}{else}\PYG{p}{:}
+    \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s2}{\PYGZhy{}\PYGZhy{} DEFAULT (TRAIN) MODE \PYGZhy{}\PYGZhy{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+    \PYG{n}{transformer} \PYG{o}{=} \PYG{n}{getTrainedTransformer}\PYG{p}{()}
+
+  \PYG{c+c1}{\PYGZsh{} \PYGZhy{}\PYGZhy{} Testing the model \PYGZhy{}\PYGZhy{}}
+  \PYG{n}{blueScore} \PYG{o}{=} \PYG{n}{getBleuScore}\PYG{p}{(}\PYG{n}{transformer}\PYG{p}{,} \PYG{n}{DATASET}\PYG{p}{,} \PYG{n}{JAPANESE\PYGZus{}SOURCE}\PYG{p}{,} \PYG{n}{JAPANESE\PYGZus{}SIMPLIFIED}\PYG{p}{)}
+  \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}BLEU score: }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{blueScore}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+
+  \PYG{k}{if} \PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}\PYGZhy{}\PYGZhy{}no\PYGZhy{}print\PYGZdq{}} \PYG{o+ow}{not} \PYG{o+ow}{in} \PYG{n}{sys}\PYG{o}{.}\PYG{n}{argv}\PYG{p}{):}
+    \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s2}{Sentences that are not in the dataset}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+
+    \PYG{n}{prettyPrintTranslation}\PYG{p}{(}\PYG{n}{transformer}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}お前はもう死んでいる。\PYGZdq{}}\PYG{p}{)}
+    \PYG{n}{prettyPrintTranslation}\PYG{p}{(}\PYG{n}{transformer}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}知識豊富な人間は実に馬鹿である。\PYGZdq{}}\PYG{p}{)}
+    \PYG{n}{prettyPrintTranslation}\PYG{p}{(}\PYG{n}{transformer}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}あたしのこと好きすぎ。\PYGZdq{}}\PYG{p}{)}
+    \PYG{n}{prettyPrintTranslation}\PYG{p}{(}\PYG{n}{transformer}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}事実上日本の唯一の公用語である。\PYGZdq{}}\PYG{p}{)}
+    \PYG{n}{prettyPrintTranslation}\PYG{p}{(}\PYG{n}{transformer}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}我思う故に我あり。\PYGZdq{}}\PYG{p}{)}
+
+    \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s2}{Sentences from the dataset}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+
+    \PYG{n}{prettyPrintTranslation}\PYG{p}{(}\PYG{n}{transformer}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}彼は怒りに我を忘れた。\PYGZdq{}}\PYG{p}{)}
+\end{Verbatim}

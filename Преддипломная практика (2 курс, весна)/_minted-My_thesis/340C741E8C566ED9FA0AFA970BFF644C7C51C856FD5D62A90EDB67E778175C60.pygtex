@@ -1,0 +1,39 @@
+\begin{Verbatim}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8\relax}]
+\PYG{k+kn}{from} \PYG{n+nn}{flask} \PYG{k+kn}{import} \PYG{n}{Flask}\PYG{p}{,} \PYG{n}{request}\PYG{p}{,} \PYG{n}{jsonify}
+\PYG{k+kn}{from} \PYG{n+nn}{flask\PYGZus{}cors} \PYG{k+kn}{import} \PYG{n}{cross\PYGZus{}origin}
+
+\PYG{k+kn}{from} \PYG{n+nn}{modules.Parser.utils} \PYG{k+kn}{import} \PYG{n}{getMeCabTokens}
+\PYG{k+kn}{from} \PYG{n+nn}{utils} \PYG{k+kn}{import} \PYG{n}{initiatePyTorch}\PYG{p}{,} \PYG{n}{loadTransformer}
+
+\PYG{k}{def} \PYG{n+nf}{startSimplificationServerApp}\PYG{p}{():}
+  \PYG{n}{app} \PYG{o}{=} \PYG{n}{Flask}\PYG{p}{(}\PYG{n+nv+vm}{\PYGZus{}\PYGZus{}name\PYGZus{}\PYGZus{}}\PYG{p}{)}
+
+  \PYG{n}{initiatePyTorch}\PYG{p}{()}
+  \PYG{n}{transformer} \PYG{o}{=} \PYG{n}{loadTransformer}\PYG{p}{()}
+
+  \PYG{n+nd}{@app}\PYG{o}{.}\PYG{n}{route}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}/processJapaneseText\PYGZdq{}}\PYG{p}{,} \PYG{n}{methods}\PYG{o}{=}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}GET\PYGZdq{}}\PYG{p}{])}
+  \PYG{n+nd}{@cross\PYGZus{}origin}\PYG{p}{()}
+  \PYG{k}{def} \PYG{n+nf}{getProcessJapaneseText}\PYG{p}{():}
+    \PYG{n}{text} \PYG{o}{=} \PYG{n}{request}\PYG{o}{.}\PYG{n}{args}\PYG{o}{.}\PYG{n}{get}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}text\PYGZdq{}}\PYG{p}{)}\PYG{o}{.}\PYG{n}{strip}\PYG{p}{()}
+
+    \PYG{k}{if} \PYG{p}{(}\PYG{n}{text} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}}\PYG{p}{):}
+      \PYG{k}{return} \PYG{n}{jsonify}\PYG{p}{(\PYGZob{}}
+        \PYG{l+s+s2}{\PYGZdq{}originalText\PYGZdq{}}\PYG{p}{:} \PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}}\PYG{p}{,}
+        \PYG{l+s+s2}{\PYGZdq{}simplifiedText\PYGZdq{}}\PYG{p}{:} \PYG{l+s+s2}{\PYGZdq{}\PYGZdq{}}\PYG{p}{,}
+        \PYG{l+s+s2}{\PYGZdq{}originalTextTokens\PYGZdq{}}\PYG{p}{:} \PYG{p}{[],}
+        \PYG{l+s+s2}{\PYGZdq{}simplifiedTextTokens\PYGZdq{}}\PYG{p}{:} \PYG{p}{[]}
+      \PYG{p}{\PYGZcb{})}
+
+    \PYG{n}{simplifiedText} \PYG{o}{=} \PYG{n}{transformer}\PYG{o}{.}\PYG{n}{translate}\PYG{p}{(}\PYG{n}{text}\PYG{p}{)}
+    \PYG{n}{textTokens} \PYG{o}{=} \PYG{n}{getMeCabTokens}\PYG{p}{(}\PYG{n}{text}\PYG{p}{)}
+    \PYG{n}{simplifiedTextTokens} \PYG{o}{=} \PYG{n}{getMeCabTokens}\PYG{p}{(}\PYG{n}{simplifiedText}\PYG{p}{)}
+
+    \PYG{k}{return} \PYG{n}{jsonify}\PYG{p}{(\PYGZob{}}
+      \PYG{l+s+s2}{\PYGZdq{}originalText\PYGZdq{}}\PYG{p}{:} \PYG{n}{text}\PYG{p}{,}
+      \PYG{l+s+s2}{\PYGZdq{}simplifiedText\PYGZdq{}}\PYG{p}{:} \PYG{n}{simplifiedText}\PYG{p}{,}
+      \PYG{l+s+s2}{\PYGZdq{}originalTextTokens\PYGZdq{}}\PYG{p}{:} \PYG{n}{textTokens}\PYG{p}{,}
+      \PYG{l+s+s2}{\PYGZdq{}simplifiedTextTokens\PYGZdq{}}\PYG{p}{:} \PYG{n}{simplifiedTextTokens}
+    \PYG{p}{\PYGZcb{})}
+
+  \PYG{n}{app}\PYG{o}{.}\PYG{n}{run}\PYG{p}{()}
+\end{Verbatim}

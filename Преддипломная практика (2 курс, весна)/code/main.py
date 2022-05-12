@@ -1,25 +1,22 @@
 import sys
 from importlib import import_module
 
-__version__ = "0.0.1"
+__version__ = "1.0.0"
 hadErrors = False
 
 try:
   from rich.console import Console
+  from rich.markdown import Markdown
   console = Console()
 except ImportError as e:
-  print("Module `Console` is not installed!")
+  print("Module `Rich` is not installed!")
+  Markdown = str
+
   class MyConsole:
     def print(content):
       print(content)
-  console = MyConsole
-  hadErrors = True
 
-try:
-  from rich.markdown import Markdown
-except ImportError as e:
-  print("Module `Markdown` is not installed!")
-  Markdown = str
+  console = MyConsole
   hadErrors = True
 
 def printHelp():
@@ -41,7 +38,7 @@ elif ("--server" in sys.argv or "--serve" in sys.argv):
   app = getattr(serverModule, "startSimplificationServerApp")
   app()
 else:
-  print("Loading the transformer model...\n")
+  print("Starting the transformer model app...\n")
   transformerModule = import_module("apps.Transformer.main")
   app = getattr(transformerModule, "startTransformerApp")
   app()

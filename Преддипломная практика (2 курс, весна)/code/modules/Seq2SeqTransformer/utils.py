@@ -1,8 +1,9 @@
 from timeit import default_timer as timer
 
 import torch
-from modules.Dataset.main import MyDataset
-from modules.Language.definitions import BOS_IDX, PAD_IDX
+import tqdm
+from modules.Dataset.definitions import TJapaneseSimplificationDataset
+from modules.Language.definitions import EOS_IDX, PAD_IDX
 from modules.Language.utils import getCollateFn
 from torch import Tensor, nn
 from torch.utils.data import DataLoader
@@ -21,24 +22,24 @@ def generateSquareSubsequentMask(size: int, device: str) -> Tensor:
   return mask
 
 # Generates the seq2seq transformer masks
-def createMask(src: Tensor, tgt: Tensor, device: str):
-  src_seq_len = src.shape[0]
-  tgt_seq_len = tgt.shape[0]
+def createMask(src: Tensor, tgt: Tensor, device: str) -> tuple[Tensor, Tensor, Tensor, Tensor]:
+  srcSeqLen = src.shape[0]
+  tgtSeqLen = tgt.shape[0]
 
-  tgt_mask = generateSquareSubsequentMask(tgt_seq_len, device)
-  src_mask = torch.zeros((src_seq_len, src_seq_len), device=device).type(torch.bool)
+  tgtMask = generateSquareSubsequentMask(tgtSeqLen, device)
+  srcMask = torch.zeros((srcSeqLen, srcSeqLen), device=device).type(torch.bool)
 
-  src_padding_mask = (src == PAD_IDX).transpose(0, 1)
-  tgt_padding_mask = (tgt == PAD_IDX).transpose(0, 1)
-  return src_mask, tgt_mask, src_padding_mask, tgt_padding_mask
+  srcPaddingMask = (src == PAD_IDX).transpose(0, 1)
+  tgtPaddingMask = (tgt == PAD_IDX).transpose(0, 1)
+  return srcMask, tgtMask, srcPaddingMask, tgtPaddingMask
 
-# Initializes the Transformer's parameters with the Glorot initialization.
+# Initializes the Transformer's parameters with the Glorot initialization
 def initializeTransformerParameters(transformer: nn.Module) -> None:
   for parameter in transformer.parameters():
     if parameter.dim() > 1:
       nn.init.xavier_uniform_(parameter)
 
-# Function to generate output sequence (simplified sentence) using the greedy algorithm.
+# Function to generate output sequence (simplified sentence) using the greedy algorithm
 def greedyDecode(model, src, srcMask, maxLen, startSymbol, device: str) -> Tensor:
   src = src.to(device)
   srcMask = srcMask.to(device)
@@ -47,34 +48,38 @@ def greedyDecode(model, src, srcMask, maxLen, startSymbol, device: str) -> Tenso
   ys = torch.ones(1, 1).fill_(startSymbol).type(torch.long).to(device)
   for i in range(maxLen - 1):
     memory = memory.to(device)
-    tgtMaskBase = generateSquareSubsequentMask(ys.size(0), device)
-    tgtMask = (tgtMaskBase.type(torch.bool)).to(device)
+    tgtMask = generateSquareSubsequentMask(ys.size(0), device)
+    tgtMask = (tgtMask.type(torch.bool)).to(device)
     out = model.decode(ys, memory, tgtMask)
     out = out.transpose(0, 1)
     prob = model.generator(out[:, -1])
-    _, next_word = torch.max(prob, dim=1)
-    next_word = next_word.item()
+    _, nextWord = torch.max(prob, dim=1)
+    nextWord = nextWord.item()
 
-    ys = torch.cat([ys, torch.ones(1, 1).type_as(src.data).fill_(next_word)], dim=0)
-    if next_word == BOS_IDX:
+    ys = torch.cat([ys, torch.ones(1, 1).type_as(src.data).fill_(nextWord)], dim=0)
+    if nextWord == EOS_IDX:
       break
   return ys
 
-# Evaluates the model.
+# Evaluates the model
 def evaluate(
   model: torch.nn,
   lossFn: torch.nn,
-  textTransform: dict,
-  dataset: MyDataset
+  dataset: TJapaneseSimplificationDataset
 ) -> float:
   model.eval()
   losses = 0
 
   valIter = dataset.getValidationSplit()
-  collateFn = getCollateFn(model.srcLanguage, model.tgtLanguage, textTransform)
+  collateFn = getCollateFn(
+    model.srcLanguage,
+    model.tgtLanguage,
+    model.srcTextTransform,
+    model.tgtTextTransform
+  )
   valDataloader = DataLoader(valIter, batch_size=model.batchSize, collate_fn=collateFn)
 
-  for src, tgt in valDataloader:
+  for src, tgt in tqdm.tqdm(valDataloader, leave=False):
     src = src.to(model.device)
     tgt = tgt.to(model.device)
 
@@ -94,8 +99,8 @@ def evaluate(
       srcPaddingMask
     )
 
-    tgt_out = tgt[1:, :]
-    loss = lossFn(logits.reshape(-1, logits.shape[-1]), tgt_out.reshape(-1))
+    tgtOut = tgt[1:, :]
+    loss = lossFn(logits.reshape(-1, logits.shape[-1]), tgtOut.reshape(-1))
     losses += loss.item()
 
   return losses / len(valDataloader)
@@ -105,32 +110,31 @@ def train(
   model: torch.nn,
   optimizer: torch.optim,
   lossFn: torch.nn,
-  textTransform: dict,
   epochs: int,
-  dataset: MyDataset
+  dataset: TJapaneseSimplificationDataset
 ) -> None:
   bestValue = 1729
   bestValueEpoch = 1
 
   for epoch in range(1, epochs + 1):
     startTime = timer()
-    trainLoss = trainEpoch(model, optimizer, lossFn, textTransform, dataset)
+    trainLoss = trainEpoch(model, optimizer, lossFn, dataset)
     endTime = timer()
     trainTime = endTime - startTime
 
     startTime = timer()
-    valueLoss = evaluate(model, lossFn, textTransform, dataset)
+    valueLoss = evaluate(model, lossFn, dataset)
     endTime = timer()
     evaluationTime = endTime - startTime
 
-    trainLossPrint = f"train loss: {trainLoss:.3f} ({trainTime:.1f}s)"
-    valLossPrint = f"val loss: {valueLoss:.3f} ({evaluationTime:.1f})"
-    print((f"epoch-{epoch}: ${trainLossPrint}, ${valLossPrint}"))
+    trainLossPrint = f"train-loss={trainLoss:.3f} ({trainTime:.1f}s)"
+    valLossPrint = f"val-loss={valueLoss:.3f} ({evaluationTime:.1f}s)"
+    print((f"epoch-{epoch}: {trainLossPrint}, {valLossPrint}"))
 
     if (valueLoss < bestValue):
       bestValue = valueLoss
       bestValueEpoch = epoch
-    if (epoch - bestValueEpoch > 3):
+    if (epoch - bestValueEpoch >= 5):
       print("The model stopped improving, so we stop the learning process.")
       break
 
@@ -139,16 +143,20 @@ def trainEpoch(
   model: torch.nn,
   optimizer: torch.optim,
   lossFn: torch.nn,
-  textTransform: dict,
-  dataset: MyDataset
+  dataset: TJapaneseSimplificationDataset
 ) -> float:
   model.train()
   losses = 0
-  train_iter = dataset.getTrainSplit()
-  collateFn = getCollateFn(model.srcLanguage, model.tgtLanguage, textTransform)
-  trainSplit = DataLoader(train_iter, batch_size=model.batchSize, collate_fn=collateFn)
+  trainIterator = dataset.getTrainSplit()
+  collateFn = getCollateFn(
+    model.srcLanguage,
+    model.tgtLanguage,
+    model.srcTextTransform,
+    model.tgtTextTransform
+  )
+  trainSplit = DataLoader(trainIterator, batch_size=model.batchSize, collate_fn=collateFn)
 
-  for src, tgt in trainSplit:
+  for src, tgt in tqdm.tqdm(trainSplit, leave=False):
     src = src.to(model.device)
     tgt = tgt.to(model.device)
 
@@ -170,8 +178,8 @@ def trainEpoch(
 
     optimizer.zero_grad()
 
-    tgt_out = tgt[1:, :]
-    loss = lossFn(logits.reshape(-1, logits.shape[-1]), tgt_out.reshape(-1))
+    tgtOut = tgt[1:, :]
+    loss = lossFn(logits.reshape(-1, logits.shape[-1]), tgtOut.reshape(-1))
     loss.backward()
 
     optimizer.step()

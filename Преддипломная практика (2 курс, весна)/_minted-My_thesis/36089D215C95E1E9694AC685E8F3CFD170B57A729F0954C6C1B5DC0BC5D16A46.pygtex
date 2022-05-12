@@ -1,0 +1,182 @@
+\begin{Verbatim}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8\relax}]
+\PYG{k+kn}{from} \PYG{n+nn}{timeit} \PYG{k+kn}{import} \PYG{n}{default\PYGZus{}timer} \PYG{k}{as} \PYG{n}{timer}
+
+\PYG{k+kn}{import} \PYG{n+nn}{torch}
+\PYG{k+kn}{from} \PYG{n+nn}{modules.Dataset.main} \PYG{k+kn}{import} \PYG{n}{MyDataset}
+\PYG{k+kn}{from} \PYG{n+nn}{modules.Language.definitions} \PYG{k+kn}{import} \PYG{n}{BOS\PYGZus{}IDX}\PYG{p}{,} \PYG{n}{PAD\PYGZus{}IDX}
+\PYG{k+kn}{from} \PYG{n+nn}{modules.Language.utils} \PYG{k+kn}{import} \PYG{n}{getCollateFn}
+\PYG{k+kn}{from} \PYG{n+nn}{torch} \PYG{k+kn}{import} \PYG{n}{Tensor}\PYG{p}{,} \PYG{n}{nn}
+\PYG{k+kn}{from} \PYG{n+nn}{torch.utils.data} \PYG{k+kn}{import} \PYG{n}{DataLoader}
+
+
+\PYG{c+c1}{\PYGZsh{} Generates the following mask:}
+\PYG{c+c1}{\PYGZsh{} tensor([[0., \PYGZhy{}inf, \PYGZhy{}inf, \PYGZhy{}inf, \PYGZhy{}inf],}
+\PYG{c+c1}{\PYGZsh{}         [0.,   0., \PYGZhy{}inf, \PYGZhy{}inf, \PYGZhy{}inf],}
+\PYG{c+c1}{\PYGZsh{}         [0.,   0.,   0., \PYGZhy{}inf, \PYGZhy{}inf],}
+\PYG{c+c1}{\PYGZsh{}         [0.,   0.,   0.,   0., \PYGZhy{}inf],}
+\PYG{c+c1}{\PYGZsh{}         [0.,   0.,   0.,   0.,   0.]])}
+\PYG{k}{def} \PYG{n+nf}{generateSquareSubsequentMask}\PYG{p}{(}\PYG{n}{size}\PYG{p}{:} \PYG{n+nb}{int}\PYG{p}{,} \PYG{n}{device}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{Tensor}\PYG{p}{:}
+  \PYG{n}{mask} \PYG{o}{=} \PYG{p}{(}\PYG{n}{torch}\PYG{o}{.}\PYG{n}{triu}\PYG{p}{(}\PYG{n}{torch}\PYG{o}{.}\PYG{n}{ones}\PYG{p}{((}\PYG{n}{size}\PYG{p}{,} \PYG{n}{size}\PYG{p}{),} \PYG{n}{device}\PYG{o}{=}\PYG{n}{device}\PYG{p}{))} \PYG{o}{==} \PYG{l+m+mi}{1}\PYG{p}{)}\PYG{o}{.}\PYG{n}{transpose}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{1}\PYG{p}{)}
+  \PYG{n}{mask} \PYG{o}{=} \PYG{n}{mask}\PYG{o}{.}\PYG{n}{float}\PYG{p}{()}\PYG{o}{.}\PYG{n}{masked\PYGZus{}fill}\PYG{p}{(}\PYG{n}{mask} \PYG{o}{==} \PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n+nb}{float}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}\PYGZhy{}inf\PYGZdq{}}\PYG{p}{))}
+  \PYG{n}{mask} \PYG{o}{=} \PYG{n}{mask}\PYG{o}{.}\PYG{n}{masked\PYGZus{}fill}\PYG{p}{(}\PYG{n}{mask} \PYG{o}{==} \PYG{l+m+mi}{1}\PYG{p}{,} \PYG{n+nb}{float}\PYG{p}{(}\PYG{l+m+mf}{0.0}\PYG{p}{))}
+  \PYG{k}{return} \PYG{n}{mask}
+
+\PYG{c+c1}{\PYGZsh{} Generates the seq2seq transformer masks}
+\PYG{k}{def} \PYG{n+nf}{createMask}\PYG{p}{(}\PYG{n}{src}\PYG{p}{:} \PYG{n}{Tensor}\PYG{p}{,} \PYG{n}{tgt}\PYG{p}{:} \PYG{n}{Tensor}\PYG{p}{,} \PYG{n}{device}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{):}
+  \PYG{n}{src\PYGZus{}seq\PYGZus{}len} \PYG{o}{=} \PYG{n}{src}\PYG{o}{.}\PYG{n}{shape}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}
+  \PYG{n}{tgt\PYGZus{}seq\PYGZus{}len} \PYG{o}{=} \PYG{n}{tgt}\PYG{o}{.}\PYG{n}{shape}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}
+
+  \PYG{n}{tgt\PYGZus{}mask} \PYG{o}{=} \PYG{n}{generateSquareSubsequentMask}\PYG{p}{(}\PYG{n}{tgt\PYGZus{}seq\PYGZus{}len}\PYG{p}{,} \PYG{n}{device}\PYG{p}{)}
+  \PYG{n}{src\PYGZus{}mask} \PYG{o}{=} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{zeros}\PYG{p}{((}\PYG{n}{src\PYGZus{}seq\PYGZus{}len}\PYG{p}{,} \PYG{n}{src\PYGZus{}seq\PYGZus{}len}\PYG{p}{),} \PYG{n}{device}\PYG{o}{=}\PYG{n}{device}\PYG{p}{)}\PYG{o}{.}\PYG{n}{type}\PYG{p}{(}\PYG{n}{torch}\PYG{o}{.}\PYG{n}{bool}\PYG{p}{)}
+
+  \PYG{n}{src\PYGZus{}padding\PYGZus{}mask} \PYG{o}{=} \PYG{p}{(}\PYG{n}{src} \PYG{o}{==} \PYG{n}{PAD\PYGZus{}IDX}\PYG{p}{)}\PYG{o}{.}\PYG{n}{transpose}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{1}\PYG{p}{)}
+  \PYG{n}{tgt\PYGZus{}padding\PYGZus{}mask} \PYG{o}{=} \PYG{p}{(}\PYG{n}{tgt} \PYG{o}{==} \PYG{n}{PAD\PYGZus{}IDX}\PYG{p}{)}\PYG{o}{.}\PYG{n}{transpose}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{1}\PYG{p}{)}
+  \PYG{k}{return} \PYG{n}{src\PYGZus{}mask}\PYG{p}{,} \PYG{n}{tgt\PYGZus{}mask}\PYG{p}{,} \PYG{n}{src\PYGZus{}padding\PYGZus{}mask}\PYG{p}{,} \PYG{n}{tgt\PYGZus{}padding\PYGZus{}mask}
+
+\PYG{c+c1}{\PYGZsh{} Initializes the Transformer\PYGZsq{}s parameters with the Glorot initialization.}
+\PYG{k}{def} \PYG{n+nf}{initializeTransformerParameters}\PYG{p}{(}\PYG{n}{transformer}\PYG{p}{:} \PYG{n}{nn}\PYG{o}{.}\PYG{n}{Module}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{k+kc}{None}\PYG{p}{:}
+  \PYG{k}{for} \PYG{n}{parameter} \PYG{o+ow}{in} \PYG{n}{transformer}\PYG{o}{.}\PYG{n}{parameters}\PYG{p}{():}
+    \PYG{k}{if} \PYG{n}{parameter}\PYG{o}{.}\PYG{n}{dim}\PYG{p}{()} \PYG{o}{\PYGZgt{}} \PYG{l+m+mi}{1}\PYG{p}{:}
+      \PYG{n}{nn}\PYG{o}{.}\PYG{n}{init}\PYG{o}{.}\PYG{n}{xavier\PYGZus{}uniform\PYGZus{}}\PYG{p}{(}\PYG{n}{parameter}\PYG{p}{)}
+
+\PYG{c+c1}{\PYGZsh{} Function to generate output sequence (simplified sentence) using the greedy algorithm.}
+\PYG{k}{def} \PYG{n+nf}{greedyDecode}\PYG{p}{(}\PYG{n}{model}\PYG{p}{,} \PYG{n}{src}\PYG{p}{,} \PYG{n}{srcMask}\PYG{p}{,} \PYG{n}{maxLen}\PYG{p}{,} \PYG{n}{startSymbol}\PYG{p}{,} \PYG{n}{device}\PYG{p}{:} \PYG{n+nb}{str}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{Tensor}\PYG{p}{:}
+  \PYG{n}{src} \PYG{o}{=} \PYG{n}{src}\PYG{o}{.}\PYG{n}{to}\PYG{p}{(}\PYG{n}{device}\PYG{p}{)}
+  \PYG{n}{srcMask} \PYG{o}{=} \PYG{n}{srcMask}\PYG{o}{.}\PYG{n}{to}\PYG{p}{(}\PYG{n}{device}\PYG{p}{)}
+
+  \PYG{n}{memory} \PYG{o}{=} \PYG{n}{model}\PYG{o}{.}\PYG{n}{encode}\PYG{p}{(}\PYG{n}{src}\PYG{p}{,} \PYG{n}{srcMask}\PYG{p}{)}
+  \PYG{n}{ys} \PYG{o}{=} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{ones}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{l+m+mi}{1}\PYG{p}{)}\PYG{o}{.}\PYG{n}{fill\PYGZus{}}\PYG{p}{(}\PYG{n}{startSymbol}\PYG{p}{)}\PYG{o}{.}\PYG{n}{type}\PYG{p}{(}\PYG{n}{torch}\PYG{o}{.}\PYG{n}{long}\PYG{p}{)}\PYG{o}{.}\PYG{n}{to}\PYG{p}{(}\PYG{n}{device}\PYG{p}{)}
+  \PYG{k}{for} \PYG{n}{i} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{n}{maxLen} \PYG{o}{\PYGZhy{}} \PYG{l+m+mi}{1}\PYG{p}{):}
+    \PYG{n}{memory} \PYG{o}{=} \PYG{n}{memory}\PYG{o}{.}\PYG{n}{to}\PYG{p}{(}\PYG{n}{device}\PYG{p}{)}
+    \PYG{n}{tgtMaskBase} \PYG{o}{=} \PYG{n}{generateSquareSubsequentMask}\PYG{p}{(}\PYG{n}{ys}\PYG{o}{.}\PYG{n}{size}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{),} \PYG{n}{device}\PYG{p}{)}
+    \PYG{n}{tgtMask} \PYG{o}{=} \PYG{p}{(}\PYG{n}{tgtMaskBase}\PYG{o}{.}\PYG{n}{type}\PYG{p}{(}\PYG{n}{torch}\PYG{o}{.}\PYG{n}{bool}\PYG{p}{))}\PYG{o}{.}\PYG{n}{to}\PYG{p}{(}\PYG{n}{device}\PYG{p}{)}
+    \PYG{n}{out} \PYG{o}{=} \PYG{n}{model}\PYG{o}{.}\PYG{n}{decode}\PYG{p}{(}\PYG{n}{ys}\PYG{p}{,} \PYG{n}{memory}\PYG{p}{,} \PYG{n}{tgtMask}\PYG{p}{)}
+    \PYG{n}{out} \PYG{o}{=} \PYG{n}{out}\PYG{o}{.}\PYG{n}{transpose}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{1}\PYG{p}{)}
+    \PYG{n}{prob} \PYG{o}{=} \PYG{n}{model}\PYG{o}{.}\PYG{n}{generator}\PYG{p}{(}\PYG{n}{out}\PYG{p}{[:,} \PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{])}
+    \PYG{n}{\PYGZus{}}\PYG{p}{,} \PYG{n}{next\PYGZus{}word} \PYG{o}{=} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{max}\PYG{p}{(}\PYG{n}{prob}\PYG{p}{,} \PYG{n}{dim}\PYG{o}{=}\PYG{l+m+mi}{1}\PYG{p}{)}
+    \PYG{n}{next\PYGZus{}word} \PYG{o}{=} \PYG{n}{next\PYGZus{}word}\PYG{o}{.}\PYG{n}{item}\PYG{p}{()}
+
+    \PYG{n}{ys} \PYG{o}{=} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{cat}\PYG{p}{([}\PYG{n}{ys}\PYG{p}{,} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{ones}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{l+m+mi}{1}\PYG{p}{)}\PYG{o}{.}\PYG{n}{type\PYGZus{}as}\PYG{p}{(}\PYG{n}{src}\PYG{o}{.}\PYG{n}{data}\PYG{p}{)}\PYG{o}{.}\PYG{n}{fill\PYGZus{}}\PYG{p}{(}\PYG{n}{next\PYGZus{}word}\PYG{p}{)],} \PYG{n}{dim}\PYG{o}{=}\PYG{l+m+mi}{0}\PYG{p}{)}
+    \PYG{k}{if} \PYG{n}{next\PYGZus{}word} \PYG{o}{==} \PYG{n}{BOS\PYGZus{}IDX}\PYG{p}{:}
+      \PYG{k}{break}
+  \PYG{k}{return} \PYG{n}{ys}
+
+\PYG{c+c1}{\PYGZsh{} Evaluates the model.}
+\PYG{k}{def} \PYG{n+nf}{evaluate}\PYG{p}{(}
+  \PYG{n}{model}\PYG{p}{:} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{nn}\PYG{p}{,}
+  \PYG{n}{lossFn}\PYG{p}{:} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{nn}\PYG{p}{,}
+  \PYG{n}{textTransform}\PYG{p}{:} \PYG{n+nb}{dict}\PYG{p}{,}
+  \PYG{n}{dataset}\PYG{p}{:} \PYG{n}{MyDataset}
+\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n+nb}{float}\PYG{p}{:}
+  \PYG{n}{model}\PYG{o}{.}\PYG{n}{eval}\PYG{p}{()}
+  \PYG{n}{losses} \PYG{o}{=} \PYG{l+m+mi}{0}
+
+  \PYG{n}{valIter} \PYG{o}{=} \PYG{n}{dataset}\PYG{o}{.}\PYG{n}{getValidationSplit}\PYG{p}{()}
+  \PYG{n}{collateFn} \PYG{o}{=} \PYG{n}{getCollateFn}\PYG{p}{(}\PYG{n}{model}\PYG{o}{.}\PYG{n}{srcLanguage}\PYG{p}{,} \PYG{n}{model}\PYG{o}{.}\PYG{n}{tgtLanguage}\PYG{p}{,} \PYG{n}{textTransform}\PYG{p}{)}
+  \PYG{n}{valDataloader} \PYG{o}{=} \PYG{n}{DataLoader}\PYG{p}{(}\PYG{n}{valIter}\PYG{p}{,} \PYG{n}{batch\PYGZus{}size}\PYG{o}{=}\PYG{n}{model}\PYG{o}{.}\PYG{n}{batchSize}\PYG{p}{,} \PYG{n}{collate\PYGZus{}fn}\PYG{o}{=}\PYG{n}{collateFn}\PYG{p}{)}
+
+  \PYG{k}{for} \PYG{n}{src}\PYG{p}{,} \PYG{n}{tgt} \PYG{o+ow}{in} \PYG{n}{valDataloader}\PYG{p}{:}
+    \PYG{n}{src} \PYG{o}{=} \PYG{n}{src}\PYG{o}{.}\PYG{n}{to}\PYG{p}{(}\PYG{n}{model}\PYG{o}{.}\PYG{n}{device}\PYG{p}{)}
+    \PYG{n}{tgt} \PYG{o}{=} \PYG{n}{tgt}\PYG{o}{.}\PYG{n}{to}\PYG{p}{(}\PYG{n}{model}\PYG{o}{.}\PYG{n}{device}\PYG{p}{)}
+
+    \PYG{n}{tgtInput} \PYG{o}{=} \PYG{n}{tgt}\PYG{p}{[:}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{p}{:]}
+    \PYG{n}{srcMask}\PYG{p}{,} \PYG{n}{tgtMask}\PYG{p}{,} \PYG{n}{srcPaddingMask}\PYG{p}{,} \PYG{n}{tgtPaddingMask} \PYG{o}{=} \PYG{n}{createMask}\PYG{p}{(}
+      \PYG{n}{src}\PYG{p}{,}
+      \PYG{n}{tgtInput}\PYG{p}{,}
+      \PYG{n}{device}\PYG{o}{=}\PYG{n}{model}\PYG{o}{.}\PYG{n}{device}
+    \PYG{p}{)}
+    \PYG{n}{logits} \PYG{o}{=} \PYG{n}{model}\PYG{p}{(}
+      \PYG{n}{src}\PYG{p}{,}
+      \PYG{n}{tgtInput}\PYG{p}{,}
+      \PYG{n}{srcMask}\PYG{p}{,}
+      \PYG{n}{tgtMask}\PYG{p}{,}
+      \PYG{n}{srcPaddingMask}\PYG{p}{,}
+      \PYG{n}{tgtPaddingMask}\PYG{p}{,}
+      \PYG{n}{srcPaddingMask}
+    \PYG{p}{)}
+
+    \PYG{n}{tgt\PYGZus{}out} \PYG{o}{=} \PYG{n}{tgt}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{:,} \PYG{p}{:]}
+    \PYG{n}{loss} \PYG{o}{=} \PYG{n}{lossFn}\PYG{p}{(}\PYG{n}{logits}\PYG{o}{.}\PYG{n}{reshape}\PYG{p}{(}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{n}{logits}\PYG{o}{.}\PYG{n}{shape}\PYG{p}{[}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{]),} \PYG{n}{tgt\PYGZus{}out}\PYG{o}{.}\PYG{n}{reshape}\PYG{p}{(}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{))}
+    \PYG{n}{losses} \PYG{o}{+=} \PYG{n}{loss}\PYG{o}{.}\PYG{n}{item}\PYG{p}{()}
+
+  \PYG{k}{return} \PYG{n}{losses} \PYG{o}{/} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{valDataloader}\PYG{p}{)}
+
+\PYG{c+c1}{\PYGZsh{} Trains the model}
+\PYG{k}{def} \PYG{n+nf}{train}\PYG{p}{(}
+  \PYG{n}{model}\PYG{p}{:} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{nn}\PYG{p}{,}
+  \PYG{n}{optimizer}\PYG{p}{:} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{optim}\PYG{p}{,}
+  \PYG{n}{lossFn}\PYG{p}{:} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{nn}\PYG{p}{,}
+  \PYG{n}{textTransform}\PYG{p}{:} \PYG{n+nb}{dict}\PYG{p}{,}
+  \PYG{n}{epochs}\PYG{p}{:} \PYG{n+nb}{int}\PYG{p}{,}
+  \PYG{n}{dataset}\PYG{p}{:} \PYG{n}{MyDataset}
+\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{k+kc}{None}\PYG{p}{:}
+  \PYG{n}{bestValue} \PYG{o}{=} \PYG{l+m+mi}{1729}
+  \PYG{n}{bestValueEpoch} \PYG{o}{=} \PYG{l+m+mi}{1}
+
+  \PYG{k}{for} \PYG{n}{epoch} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{n}{epochs} \PYG{o}{+} \PYG{l+m+mi}{1}\PYG{p}{):}
+    \PYG{n}{startTime} \PYG{o}{=} \PYG{n}{timer}\PYG{p}{()}
+    \PYG{n}{trainLoss} \PYG{o}{=} \PYG{n}{trainEpoch}\PYG{p}{(}\PYG{n}{model}\PYG{p}{,} \PYG{n}{optimizer}\PYG{p}{,} \PYG{n}{lossFn}\PYG{p}{,} \PYG{n}{textTransform}\PYG{p}{,} \PYG{n}{dataset}\PYG{p}{)}
+    \PYG{n}{endTime} \PYG{o}{=} \PYG{n}{timer}\PYG{p}{()}
+    \PYG{n}{trainTime} \PYG{o}{=} \PYG{n}{endTime} \PYG{o}{\PYGZhy{}} \PYG{n}{startTime}
+
+    \PYG{n}{startTime} \PYG{o}{=} \PYG{n}{timer}\PYG{p}{()}
+    \PYG{n}{valueLoss} \PYG{o}{=} \PYG{n}{evaluate}\PYG{p}{(}\PYG{n}{model}\PYG{p}{,} \PYG{n}{lossFn}\PYG{p}{,} \PYG{n}{textTransform}\PYG{p}{,} \PYG{n}{dataset}\PYG{p}{)}
+    \PYG{n}{endTime} \PYG{o}{=} \PYG{n}{timer}\PYG{p}{()}
+    \PYG{n}{evaluationTime} \PYG{o}{=} \PYG{n}{endTime} \PYG{o}{\PYGZhy{}} \PYG{n}{startTime}
+
+    \PYG{n}{trainLossPrint} \PYG{o}{=} \PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}train loss: }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{trainLoss}\PYG{l+s+si}{:}\PYG{l+s+s2}{.3f}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{ (}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{trainTime}\PYG{l+s+si}{:}\PYG{l+s+s2}{.1f}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{s)\PYGZdq{}}
+    \PYG{n}{valLossPrint} \PYG{o}{=} \PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}val loss: }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{valueLoss}\PYG{l+s+si}{:}\PYG{l+s+s2}{.3f}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{ (}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{evaluationTime}\PYG{l+s+si}{:}\PYG{l+s+s2}{.1f}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{)\PYGZdq{}}
+    \PYG{n+nb}{print}\PYG{p}{((}\PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}epoch\PYGZhy{}}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{epoch}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{: \PYGZdl{}}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{trainLossPrint}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{, \PYGZdl{}}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{valLossPrint}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{))}
+
+    \PYG{k}{if} \PYG{p}{(}\PYG{n}{valueLoss} \PYG{o}{\PYGZlt{}} \PYG{n}{bestValue}\PYG{p}{):}
+      \PYG{n}{bestValue} \PYG{o}{=} \PYG{n}{valueLoss}
+      \PYG{n}{bestValueEpoch} \PYG{o}{=} \PYG{n}{epoch}
+    \PYG{k}{if} \PYG{p}{(}\PYG{n}{epoch} \PYG{o}{\PYGZhy{}} \PYG{n}{bestValueEpoch} \PYG{o}{\PYGZgt{}} \PYG{l+m+mi}{3}\PYG{p}{):}
+      \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}The model stopped improving, so we stop the learning process.\PYGZdq{}}\PYG{p}{)}
+      \PYG{k}{break}
+
+\PYG{c+c1}{\PYGZsh{} One train epoch}
+\PYG{k}{def} \PYG{n+nf}{trainEpoch}\PYG{p}{(}
+  \PYG{n}{model}\PYG{p}{:} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{nn}\PYG{p}{,}
+  \PYG{n}{optimizer}\PYG{p}{:} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{optim}\PYG{p}{,}
+  \PYG{n}{lossFn}\PYG{p}{:} \PYG{n}{torch}\PYG{o}{.}\PYG{n}{nn}\PYG{p}{,}
+  \PYG{n}{textTransform}\PYG{p}{:} \PYG{n+nb}{dict}\PYG{p}{,}
+  \PYG{n}{dataset}\PYG{p}{:} \PYG{n}{MyDataset}
+\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n+nb}{float}\PYG{p}{:}
+  \PYG{n}{model}\PYG{o}{.}\PYG{n}{train}\PYG{p}{()}
+  \PYG{n}{losses} \PYG{o}{=} \PYG{l+m+mi}{0}
+  \PYG{n}{train\PYGZus{}iter} \PYG{o}{=} \PYG{n}{dataset}\PYG{o}{.}\PYG{n}{getTrainSplit}\PYG{p}{()}
+  \PYG{n}{collateFn} \PYG{o}{=} \PYG{n}{getCollateFn}\PYG{p}{(}\PYG{n}{model}\PYG{o}{.}\PYG{n}{srcLanguage}\PYG{p}{,} \PYG{n}{model}\PYG{o}{.}\PYG{n}{tgtLanguage}\PYG{p}{,} \PYG{n}{textTransform}\PYG{p}{)}
+  \PYG{n}{trainSplit} \PYG{o}{=} \PYG{n}{DataLoader}\PYG{p}{(}\PYG{n}{train\PYGZus{}iter}\PYG{p}{,} \PYG{n}{batch\PYGZus{}size}\PYG{o}{=}\PYG{n}{model}\PYG{o}{.}\PYG{n}{batchSize}\PYG{p}{,} \PYG{n}{collate\PYGZus{}fn}\PYG{o}{=}\PYG{n}{collateFn}\PYG{p}{)}
+
+  \PYG{k}{for} \PYG{n}{src}\PYG{p}{,} \PYG{n}{tgt} \PYG{o+ow}{in} \PYG{n}{trainSplit}\PYG{p}{:}
+    \PYG{n}{src} \PYG{o}{=} \PYG{n}{src}\PYG{o}{.}\PYG{n}{to}\PYG{p}{(}\PYG{n}{model}\PYG{o}{.}\PYG{n}{device}\PYG{p}{)}
+    \PYG{n}{tgt} \PYG{o}{=} \PYG{n}{tgt}\PYG{o}{.}\PYG{n}{to}\PYG{p}{(}\PYG{n}{model}\PYG{o}{.}\PYG{n}{device}\PYG{p}{)}
+
+    \PYG{n}{tgtInput} \PYG{o}{=} \PYG{n}{tgt}\PYG{p}{[:}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{p}{:]}
+    \PYG{n}{srcMask}\PYG{p}{,} \PYG{n}{tgtMask}\PYG{p}{,} \PYG{n}{srcPaddingMask}\PYG{p}{,} \PYG{n}{tgtPaddingMask} \PYG{o}{=} \PYG{n}{createMask}\PYG{p}{(}
+      \PYG{n}{src}\PYG{p}{,}
+      \PYG{n}{tgtInput}\PYG{p}{,}
+      \PYG{n}{device}\PYG{o}{=}\PYG{n}{model}\PYG{o}{.}\PYG{n}{device}
+    \PYG{p}{)}
+    \PYG{n}{logits} \PYG{o}{=} \PYG{n}{model}\PYG{p}{(}
+      \PYG{n}{src}\PYG{p}{,}
+      \PYG{n}{tgtInput}\PYG{p}{,}
+      \PYG{n}{srcMask}\PYG{p}{,}
+      \PYG{n}{tgtMask}\PYG{p}{,}
+      \PYG{n}{srcPaddingMask}\PYG{p}{,}
+      \PYG{n}{tgtPaddingMask}\PYG{p}{,}
+      \PYG{n}{srcPaddingMask}
+    \PYG{p}{)}
+
+    \PYG{n}{optimizer}\PYG{o}{.}\PYG{n}{zero\PYGZus{}grad}\PYG{p}{()}
+
+    \PYG{n}{tgt\PYGZus{}out} \PYG{o}{=} \PYG{n}{tgt}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{:,} \PYG{p}{:]}
+    \PYG{n}{loss} \PYG{o}{=} \PYG{n}{lossFn}\PYG{p}{(}\PYG{n}{logits}\PYG{o}{.}\PYG{n}{reshape}\PYG{p}{(}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{n}{logits}\PYG{o}{.}\PYG{n}{shape}\PYG{p}{[}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{]),} \PYG{n}{tgt\PYGZus{}out}\PYG{o}{.}\PYG{n}{reshape}\PYG{p}{(}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{))}
+    \PYG{n}{loss}\PYG{o}{.}\PYG{n}{backward}\PYG{p}{()}
+
+    \PYG{n}{optimizer}\PYG{o}{.}\PYG{n}{step}\PYG{p}{()}
+    \PYG{n}{losses} \PYG{o}{+=} \PYG{n}{loss}\PYG{o}{.}\PYG{n}{item}\PYG{p}{()}
+
+  \PYG{k}{return} \PYG{n}{losses} \PYG{o}{/} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{trainSplit}\PYG{p}{)}
+\end{Verbatim}

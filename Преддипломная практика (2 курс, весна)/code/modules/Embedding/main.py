@@ -7,10 +7,10 @@ from torch import Tensor
 # helper Module to convert tensor of input indices
 # into corresponding tensor of token embeddings
 class TokenEmbedding(nn.Module):
-  def __init__(self, vocab_size: int, emb_size):
+  def __init__(self, vocabSize: int, embeddingSize):
     super(TokenEmbedding, self).__init__()
-    self.embedding = nn.Embedding(vocab_size, emb_size)
-    self.emb_size = emb_size
+    self.embedding = nn.Embedding(vocabSize, embeddingSize)
+    self.embeddingSize = embeddingSize
 
   def forward(self, tokens: Tensor):
-    return self.embedding(tokens.long()) * math.sqrt(self.emb_size)
+    return self.embedding(tokens.long()) * math.sqrt(self.embeddingSize)

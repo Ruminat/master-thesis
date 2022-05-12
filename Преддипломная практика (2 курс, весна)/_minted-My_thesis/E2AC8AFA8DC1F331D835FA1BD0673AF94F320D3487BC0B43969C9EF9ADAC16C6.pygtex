@@ -1,0 +1,34 @@
+\begin{Verbatim}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8\relax}]
+\PYG{k+kn}{import} \PYG{n+nn}{functools}
+\PYG{k+kn}{from} \PYG{n+nn}{datasets} \PYG{k+kn}{import} \PYG{n}{concatenate\PYGZus{}datasets}\PYG{p}{,} \PYG{n}{load\PYGZus{}dataset}
+
+\PYG{k+kn}{from} \PYG{n+nn}{modules.Dataset.main} \PYG{k+kn}{import} \PYG{n}{MyDataset}
+
+\PYG{n}{SNOW\PYGZus{}DATASET} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}snow\PYGZus{}simplified\PYGZus{}japanese\PYGZus{}corpus\PYGZdq{}}
+
+\PYG{n}{SNOW\PYGZus{}T15} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}snow\PYGZus{}t15\PYGZdq{}}
+\PYG{n}{SNOW\PYGZus{}T23} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}snow\PYGZus{}t23\PYGZdq{}}
+
+\PYG{n}{VALIDATION\PYGZus{}PERCENT} \PYG{o}{=} \PYG{l+m+mi}{5}
+\PYG{n}{TEST\PYGZus{}PERCENT} \PYG{o}{=} \PYG{l+m+mi}{5}
+
+\PYG{n+nd}{@functools}\PYG{o}{.}\PYG{n}{cache}
+\PYG{k}{def} \PYG{n+nf}{getTrainSplit}\PYG{p}{():}
+  \PYG{n}{t15Dataset} \PYG{o}{=} \PYG{n}{load\PYGZus{}dataset}\PYG{p}{(}\PYG{n}{SNOW\PYGZus{}DATASET}\PYG{p}{,} \PYG{n}{SNOW\PYGZus{}T15}\PYG{p}{,} \PYG{n}{split}\PYG{o}{=}\PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}train[}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{VALIDATION\PYGZus{}PERCENT}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{\PYGZpc{}:]\PYGZdq{}}\PYG{p}{)}
+  \PYG{n}{t23Dataset} \PYG{o}{=} \PYG{n}{load\PYGZus{}dataset}\PYG{p}{(}\PYG{n}{SNOW\PYGZus{}DATASET}\PYG{p}{,} \PYG{n}{SNOW\PYGZus{}T23}\PYG{p}{,} \PYG{n}{split}\PYG{o}{=}\PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}train[}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{TEST\PYGZus{}PERCENT}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{\PYGZpc{}:]\PYGZdq{}}\PYG{p}{)}
+  \PYG{k}{return} \PYG{n}{concatenate\PYGZus{}datasets}\PYG{p}{([}\PYG{n}{t15Dataset}\PYG{p}{,} \PYG{n}{t23Dataset}\PYG{p}{])}
+
+\PYG{n+nd}{@functools}\PYG{o}{.}\PYG{n}{cache}
+\PYG{k}{def} \PYG{n+nf}{getValidationSplit}\PYG{p}{():}
+  \PYG{k}{return} \PYG{n}{load\PYGZus{}dataset}\PYG{p}{(}\PYG{n}{SNOW\PYGZus{}DATASET}\PYG{p}{,} \PYG{n}{SNOW\PYGZus{}T15}\PYG{p}{,} \PYG{n}{split}\PYG{o}{=}\PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}train[:}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{VALIDATION\PYGZus{}PERCENT}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{\PYGZpc{}]\PYGZdq{}}\PYG{p}{)}
+
+\PYG{n+nd}{@functools}\PYG{o}{.}\PYG{n}{cache}
+\PYG{k}{def} \PYG{n+nf}{getTestSplit}\PYG{p}{():}
+  \PYG{k}{return} \PYG{n}{load\PYGZus{}dataset}\PYG{p}{(}\PYG{n}{SNOW\PYGZus{}DATASET}\PYG{p}{,} \PYG{n}{SNOW\PYGZus{}T23}\PYG{p}{,} \PYG{n}{split}\PYG{o}{=}\PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}train[:}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{TEST\PYGZus{}PERCENT}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{\PYGZpc{}]\PYGZdq{}}\PYG{p}{)}
+
+\PYG{n}{snowSimplifiedJapaneseDataset} \PYG{o}{=} \PYG{n}{MyDataset}\PYG{p}{(}
+  \PYG{n}{getTrainSplit}\PYG{o}{=}\PYG{n}{getTrainSplit}\PYG{p}{,}
+  \PYG{n}{getValidationSplit}\PYG{o}{=}\PYG{n}{getValidationSplit}\PYG{p}{,}
+  \PYG{n}{getTestSplit}\PYG{o}{=}\PYG{n}{getTestSplit}
+\PYG{p}{)}
+\end{Verbatim}
