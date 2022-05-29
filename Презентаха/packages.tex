@@ -1,0 +1,86 @@
+%!TeX root = ./SimplifyJapanese.tex
+\usetheme{metropolis}
+% \setbeamertemplate{footline}[frame number]{}
+
+% \usepackage{tikz}
+% \usetikzlibrary{arrows,automata,positioning}
+\usepackage{lastpage}
+% % \setbeamerfont{footline}{size=\fontsize{20}{40}}
+
+% \usepackage{appendixnumberbeamer}
+
+% \usepackage{booktabs}
+% \usepackage[scale=2]{ccicons}
+% \usepackage{natbib}
+
+% \usepackage{pgfplots}
+% \usepgfplotslibrary{dateplot}
+
+% \usepackage{xspace}
+% \newcommand{\themename}{\textbf{\textsc{metropolis}}\xspace}
+
+% \usepackage{mathspec}
+% \usepackage{amsmath, amsthm, amssymb, mathtext}
+% \usepackage{fontspec, lipsum}
+% % \usepackage[utf8]{inputenc}
+% % \usepackage[T1,T2A]{fontenc}
+% % \usepackage{unicode-math}
+\usepackage[english, russian]{babel}
+\usepackage{tabularx} % таблицы
+% \usepackage{fancybox, fancyhdr}
+% \usepackage{ulem, color, tcolorbox, graphicx}
+% \usepackage{float, wrapfig, subcaption}
+% \usepackage{enumerate} % дополнительный функционал для списков
+% \usepackage{multicol} % разделение на несколько колонок
+% \usepackage{ifthen} % условия
+% % \usepackage{physics} % содержит дифференциальные операторы (\dd, \dv, \pdv и т. д.) и не только
+
+% % вертикальное выравнивание колонок в таблице
+% \renewcommand\tabularxcolumn[1]{m{#1}}
+
+% \DeclareMathAlphabet{\mathcal}{OMS}{cmsy}{m}{n}
+% \let\mathbb\relax % remove the definition by unicode-math
+% \DeclareMathAlphabet{\mathbb}{U}{msb}{m}{n}
+% % \setmathfont{mathFont.ttf}
+% \setmathrm{mathFont.ttf}
+% \setmathfont(Digits,Latin){mathFont.ttf}
+% % \setmathfont{Latin Modern Math}
+
+\defaultfontfeatures{Ligatures=TeX}
+
+\setbeamertemplate{footline}[text line]{%
+  \parbox{\linewidth}{\scriptsize\vspace*{-10pt}Фурман~В.\,К. «Разработка и исследование системы автоматического упрощения текстов на японском языке»\hfill\small\insertpagenumber/\pageref{LastPage}}}
+\setbeamertemplate{navigation symbols}{}
+
+
+\newcommand{\import}[1]{\input{C:/Users/Ruminat/GoogleDrive/TeX/commands/#1}} % импорт из папки commands
+
+% настройка изображений
+\DeclareGraphicsExtensions{.pdf,.png,.jpg,.jpeg}
+\graphicspath{{./img/}}
+
+\usepackage{tikz}
+\usetikzlibrary{arrows,automata,positioning}
+\usepackage{float}
+
+\usepackage{amssymb}
+\usepackage{pdfpages}
+
+
+% \usepackage{CJKutf8}
+% \usepackage{CJK,CJKspace,CJKpunct}
+\pdfmapline{=unisong@Unicode@ <ipam.ttf}
+\usepackage{minted}
+
+\usepackage{xeCJK}
+\setCJKmainfont{NotoSerifCJKjp-Regular.otf}
+\newcommand{\yubi}[2]{%
+  % \ensuremath{\underbrace{\text{#1}}_{\text{#2}}}%
+  \ensuremath{\stackrel{\text{#2}}{\text{#1}}}
+}
+
+\import{textCommands}            % текстовые команды
+% \import{OLD/mathCommands}            % математические команды
+% \import{OLD/RUSmathCommands}         % особенности русской типографии
+% \import{OLD/linearAlgebraCommands}   % линейная алгебра
+% \import{OLD/setsAndDiscreteCommands} % множества и дискретная математика

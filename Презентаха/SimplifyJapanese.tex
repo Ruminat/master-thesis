@@ -1,0 +1,37 @@
+\documentclass[aspectratio=169, 10pt]{beamer}
+\usetheme{metropolis}
+
+\input{packages}
+
+\usepackage{tikz}
+\usetikzlibrary{arrows,automata,positioning}
+\usepackage{lastpage}
+
+\usepackage{unicode-math}
+% \setmainfont{FiraCode-Retina.ttf}
+\setmathfont{mathFont.ttf}
+
+\definecolor{notImportant}{HTML}{888888}
+\definecolor{mathematicaBlue}{HTML}{ACBDD7}
+\definecolor{mathematicaYellow}{HTML}{F9D391}
+
+\newcommand{\notImportant}[1]{{\color{notImportant}\small{}#1}}
+
+\newcommand{\jpExample}[2]{#1 \\ --- #2.}
+\newcommand{\sourceSentence}[1]{\notImportant{(1) Исходное предложение: }\\ #1}
+\newcommand{\transformerSample}[1]{\notImportant{(2) Изначальная модель (Transformer): }\\ #1}
+\newcommand{\pretrainedTransformerSample}[1]{\notImportant{(3) Модифицированная модель (Pretrained Transformer): }\\ #1}
+
+\begin{document}
+  \nocite{*}
+  % \setbeamertemplate{footline}{\insertframenumber/\inserttotalframenumber}
+  % \input{slides/title.tex}
+  % \input{slides/tasks.tex}
+
+  \input{src/title}
+  \input{src/introduction}
+  \input{src/theory}
+  \input{src/implementation}
+  \input{src/testing}
+  \input{src/conclusion}
+\end{document}

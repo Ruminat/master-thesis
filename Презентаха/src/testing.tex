@@ -1,0 +1,58 @@
+%!TeX root = ../SimplifyJapanese.tex
+\begin{frame}[fragile]{Метрики}%
+  Метрики BLEU и SARI обученных моделей:
+  \begin{table}[H]
+    \centering\small
+    \label{metrics}
+      \begin{tabular}{|l|l|l|}
+        \hline
+        \textbf{Модель} & \textbf{BLEU} & \textbf{SARI} \\ \hline
+        Transformer & 46{,}98 & 64{,}57 \\ \hline
+        Pretrained Transformer & \textbf{51{,}12} & \textbf{67{,}89} \\ \hline
+        Pretrained Encoder & 48{,}22 & 65{,}67 \\ \hline
+      \end{tabular}
+      \normalsize
+  \end{table}
+  Сравнение гистограмм метрик BLEU и SARI ({\color{mathematicaYellow}Transformer} / {\color{mathematicaBlue}Pretrained Transformer}):
+  \begin{figure}[H]%
+    \centering%
+    \label{metrics-comparison}
+    % \begin{subfigure}[H]{0.45\textwidth}
+    %   \label{bleu-part}
+      \includegraphics[width=0.3\textwidth]{bleu-comparison.pdf}
+    %   \caption{Метрики BLEU}
+    % \end{subfigure}
+    % \begin{subfigure}[H]{0.45\textwidth}
+      % \label{sari-part}
+      \includegraphics[width=0.3\textwidth]{sari-comparison.pdf}
+    %   \caption{Метрики SARI}
+    % \end{subfigure}
+  \end{figure}%
+\end{frame}
+
+
+\begin{frame}[fragile]{Пример упрощения №1}%
+  \sourceSentence{\jpExample{彼は怒りに我を忘れた}{он забылся в гневе}}
+
+  \transformerSample{\jpExample{彼は怒っているのに自分の意見を忘れた}{он хоть и разозлился, но забыл своё мнение}}
+
+  \pretrainedTransformerSample{\jpExample{彼は怒っていることに自分を忘れた}{он забылся, из-за того что разозлился}}
+\end{frame}
+
+
+\begin{frame}[fragile]{Пример упрощения №2}%
+  \sourceSentence{\jpExample{入場料はただだった}{вход был бесплатным}}
+
+  \transformerSample{\jpExample{入るためのお金はただなかった}{деньги для входа не были бесплатными}}
+
+  \pretrainedTransformerSample{\jpExample{入るためのお金は０円だった}{денег для входа нужно было 0 йен}}
+\end{frame}
+
+
+\begin{frame}[fragile]{Пример упрощения №3}%
+  \sourceSentence{\jpExample{そのスキャンダルはやがてみんなに知れ渡るだろう}{об этом скандале, вероятно, скоро узнают все}}
+
+  \transformerSample{\jpExample{その事件を守る事件はやがてみんなに知られるだろう}{скоро об этом событии, защищающем событие, вероятно, узнают все}}
+
+  \pretrainedTransformerSample{\jpExample{その悪い話はやがてみんなに知られるだろう}{об этой нехорошей истории скоро, вероятно, все узнают}}
+\end{frame}
