@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999993 (TeX Live 2021/W32TeX) (preloaded format=xelatex 2021.4.25)  26 MAY 2022 14:23
+This is XeTeX, Version 3.141592653-2.6-0.999993 (TeX Live 2021/W32TeX) (preloaded format=xelatex 2021.4.25)  31 MAY 2022 15:54
 entering extended mode
  \write18 enabled.
  %&-line parsing enabled.
@@ -1921,16 +1921,7 @@ File: ./img//transformer-architecture.png Graphic file (type bmp)
 \openout4 = `SimplifyJapanese.vrb'.
 
 
-(./SimplifyJapanese.vrb
-LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(2)/m/n' will be
-(Font)              scaled to size 10.00107pt on input line 3.
-LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(2)/m/n' will be
-(Font)              scaled to size 7.00075pt on input line 3.
-LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(3)/m/n' will be
-(Font)              scaled to size 9.99893pt on input line 3.
-LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(3)/m/n' will be
-(Font)              scaled to size 6.99925pt on input line 3.
-) [7
+(./SimplifyJapanese.vrb) [7
 
 ]
 \openout4 = `SimplifyJapanese.vrb'.
@@ -1954,15 +1945,18 @@ LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(3)/m/n' will be
  (./SimplifyJapanese.vrb
 File: ./img//app.png Graphic file (type bmp)
 <./img//app.png>
-) [11
+)
+Overfull \vbox (6.3622pt too high) detected at line 35
+ []
+
+[11
 
 ]
 \openout4 = `SimplifyJapanese.vrb'.
 
  (./SimplifyJapanese.vrb) [12
 
-])
-(./src/testing.tex
+]) (./src/testing.tex
 \openout4 = `SimplifyJapanese.vrb'.
 
  (./SimplifyJapanese.vrb
@@ -2016,8 +2010,7 @@ File: ./img//sari-comparison.pdf Graphic file (type pdf)
 ]
 \openout4 = `SimplifyJapanese.vrb'.
 
- (./SimplifyJapanese.vrb)
-[14
+ (./SimplifyJapanese.vrb) [14
 
 ]
 \openout4 = `SimplifyJapanese.vrb'.
@@ -2027,13 +2020,14 @@ File: ./img//sari-comparison.pdf Graphic file (type pdf)
 ]
 \openout4 = `SimplifyJapanese.vrb'.
 
- (./SimplifyJapanese.vrb) [16
 
-])
-(./src/conclusion.tex
+(./SimplifyJapanese.vrb) [16
+
+]) (./src/conclusion.tex
 \openout4 = `SimplifyJapanese.vrb'.
 
- (./SimplifyJapanese.vrb) [17
+ (./SimplifyJapanese.vrb)
+[17
 
 ])
 \tf@nav=\write8
@@ -2045,22 +2039,18 @@ File: ./img//sari-comparison.pdf Graphic file (type pdf)
 \tf@snm=\write10
 \openout10 = `SimplifyJapanese.snm'.
 
-
-
+ 
 AED: lastpage setting LastPage
 (./SimplifyJapanese.aux)
-
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
-
 Package rerunfilecheck Info: File `SimplifyJapanese.out' has not changed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
  ) 
 Here is how much of TeX's memory you used:
- 36756 strings out of 476919
- 764731 string characters out of 5825424
- 1322432 words of memory out of 5000000
- 55900 multiletter control sequences out of 15000+600000
- 409129 words of font info for 117 fonts, out of 8000000 for 9000
+ 36769 strings out of 476919
+ 765737 string characters out of 5825424
+ 1323432 words of memory out of 5000000
+ 55912 multiletter control sequences out of 15000+600000
+ 409137 words of font info for 118 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
  131i,14n,135p,1811b,475s stack positions out of 5000i,500n,10000p,200000b,80000s
 

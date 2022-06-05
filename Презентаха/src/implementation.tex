@@ -2,9 +2,12 @@
 \begin{frame}[fragile]{Архитектура системы}%
   Система состоит из:
   \begin{enumerate}[1.]%
-    \item клиентского приложения \notImportant{(TypeScript + Lit)},
-    \item сервера \notImportant{(Python + Falcon + MeCab)},
-    \item модели ИНС \notImportant{(Python + PyTorch + Spacy + HuggingFace)}.
+    \item Клиентского приложения. \\ 
+      \notImportant{Написано на TypeScript + Lit, минималистичный дизайн с формой для ввода предложения на японском, ниже "--- вывод упрощённого варианта.}
+    \item Сервера. \\ 
+      \notImportant{Написан на Python + Falcon + MeCab, получает запрос с японским предложением, возвращает токены + упрощённый вариант.}
+    \item Модели ИНС. \\
+      \notImportant{Написана на Python + PyTorch + Spacy + HuggingFace, архитектура Transformer.}
   \end{enumerate}
 \end{frame}
 
@@ -23,6 +26,7 @@
 
 
 \begin{frame}[fragile]{Пользовательское приложение}%
+  Минималистичный дизайн: пользователь вводит предложение, нажимает Enter, снизу выводится его упрощённая версия.
   \begin{figure}[H]%
     \centering
     \includegraphics[width=0.6\textwidth]{app.png}
