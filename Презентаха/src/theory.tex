@@ -22,11 +22,14 @@
   \noindent\begin{tabularx}{\textwidth}{LC}%
     Состоит из:
     \begin{itemize}%
-       \item encoder'а,
-       \item decoder'а,
-       \item генератора,
-       \item механизма внимания,
-       \item positional encoding.
+       \item encoder'а
+         "--- \notImportant{переводит предложение в понятный модели контекст};
+       \item decoder'а
+         "--- \notImportant{превращает контекст во что-то полезное};
+       \item генератора
+         "--- \notImportant{генерирует следующее слово в предложении};
+       \item механизма внимания и positional encoding
+         "--- \notImportant{о них поговорим далее}.
      \end{itemize} & 
     \includegraphics[height=0.75\textheight]{transformer-architecture.png}
   \end{tabularx}
@@ -47,7 +50,8 @@
   \begin{itemize}%
     \item scores «оценивают» важность элементов (там лежат значения от 0 до 1);
     \item $Q$ (Query), $K$ (Key), $V$ (Value) "--- матрицы входных элементов;
-    \item $d_k$ "--- нижняя размерность одной из этих матриц (длина части embedding'а).
+    \item $d_k$ "--- нижняя размерность одной из этих матриц (длина части embedding'а);
+    \item $\operatorname{softmax}$ "--- функция нормировки \notImportant{(зажимает значения вектора в отрезок $ [0; 1] $, сумма координат становится равной единице)}.
   \end{itemize}
 \end{frame}
 
